@@ -6,9 +6,9 @@ from torch.autograd import Variable
 
 import utils.dlc_bci as bci
 
-learning_rate = 0.0001
-batch_size = 5
-num_epochs = 10
+learning_rate = 0.001
+batch_size = 1
+num_epochs = 20
 
 train_input , train_target = bci.load(root='../../data_bci', one_khz = True)
 test_input , test_target = bci.load ( root = '../../data_bci', train = False, one_khz = True)
@@ -33,14 +33,14 @@ class CNN(nn.Module):
         self.layer1 = nn.Sequential(
             nn.Conv1d(28, 16, kernel_size=5, padding=2),
             nn.BatchNorm1d(16),
-            nn.ReLU(),
-            nn.MaxPool2d(2))
+            nn.Tanh(),
+            nn.MaxPool1d(2))
         self.layer2 = nn.Sequential(
-            nn.Conv1d(8, 32, kernel_size=5, padding=2),
+            nn.Conv1d(16, 32, kernel_size=5, padding=2),
             nn.BatchNorm1d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2))
-        self.fc = nn.Linear(2000, 10)
+            nn.Tanh(),
+            nn.MaxPool1d(2))
+        self.fc = nn.Linear(4000, 2)
 
     def forward(self, x):
         out = self.layer1(x)
