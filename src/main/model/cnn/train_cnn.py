@@ -7,16 +7,21 @@ from torch.autograd import Variable
 from .basic_cnn import CNN
 
 import utils.dlc_bci as bci
+from  utils.preprocessing import Preprocessing
 
 learning_rate = 0.001
 batch_size = 1
-num_epochs = 20
+num_epochs = 15
 
 class CNNTrainer:
 
     def __init__(self):
         train_input , train_target = bci.load(root='../../data_bci', one_khz = True)
         test_input , test_target = bci.load ( root = '../../data_bci', train = False, one_khz = True)
+
+        train_input = Preprocessing().PCA(train_input, k=5)
+        test_input = Preprocessing().PCA(test_input, k=5)
+
         self.train_dataset = dt.TensorDataset(train_input, train_target)
         self.test_dataset = dt.TensorDataset(test_input, test_target)
         self.train_loader = dt.DataLoader(dataset=self.train_dataset,
