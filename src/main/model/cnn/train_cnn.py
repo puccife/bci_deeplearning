@@ -20,8 +20,8 @@ class CNNTrainer:
         train_input , train_target = bci.load(root='../../data_bci', one_khz = True)
         test_input , test_target = bci.load ( root = '../../data_bci', train = False, one_khz = True)
 
-        train_input = Preprocessing().PCA(train_input, k=5)
-        test_input = Preprocessing().PCA(test_input, k=5)
+        #train_input = Preprocessing().PCA(train_input, k=5)
+        #test_input = Preprocessing().PCA(test_input, k=5)
 
         self.train_dataset = dt.TensorDataset(train_input, train_target)
         self.test_dataset = dt.TensorDataset(test_input, test_target)
