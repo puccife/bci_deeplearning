@@ -2,6 +2,7 @@ import torch
 import dlc_practical_prologue as prologue
 
 
+################ DATA ##################################################
 
 def load_data():
 	train_input, train_target, test_input, test_target = prologue.load_data(cifar = False, one_hot_labels = True)
@@ -25,6 +26,15 @@ def initialize_bias(layers,nodes_per_hidden_layer):
 		bias.append(current_layer_bias)
 	return bias
 
+def get_sample(train_input,train_target,index):
+
+	current_sample = train_input.narrow(0,index,1)
+	current_target = train_target.narrow(0,index,1)
+	return current_sample,current_target
+
+########################################################################
+
+############### Activations ###########################################
 
 def sigma(x):
 	return torch.tanh(x)
@@ -38,6 +48,20 @@ def dsigma(x):
 	derivative = torch.div(torch.mul(constantB,x),torch.pow(torch.add(expo,constantC),2))
 	return derivative
 
+
+####################################################################
+
+###################LOSS ###################################################
+
+def MSE(prediction,target):
+	
+	return (prediction - target).pow(2).sum()
+
+############################################################################
+
+
+##################Backprop#########################################################
+
 def forward_layer(input_data,weight,bias):
    
 	s_l = torch.add(torch.mm(input_data,weight),bias)
@@ -47,7 +71,7 @@ def forward_layer(input_data,weight,bias):
 def forward_pass(input_data,layers,weights,bias):
 
  
-	layer_data = []
+	layer_data = [(input_data,sigma(input_data))]
 	current_data = input_data
 	for layer in range(1,layers):
 		
@@ -67,31 +91,26 @@ def last_layer_loss(train_target,ll_forward_data):
 	
 	ll_delta = torch.mul(torch.pow(train_target.sub(ll_forward_data[1]),2),dsigma(ll_forward_data[0]))
 	return ll_delta
-	
+
+
 def backward_pass(init_delta,ll_forward_data,initial_input,weights,layers):
 
 	deltas_per_layer = []
 	deltas_per_layer.append(init_delta)
 	iterator = 0	
 	for i in reversed(range(layers - 1)):					
-		
-		inverse_activation = []
-		if (i-1 < 0):
-			inverse_activation = dsigma(initial_input)
-		else:
-			inverse_activation = dsigma((ll_forward_data[i-1])[0])	
+		inverse_activation = dsigma((ll_forward_data[i])[0])
 		delta = torch.mul(torch.mm(deltas_per_layer[iterator],torch.transpose(weights[i],0,1)),inverse_activation)
 		iterator+=1
 		deltas_per_layer.append(delta)
-	return deltas_per_layer
-
-
-def get_sample(train_input,train_target,index):
-
-	current_sample = torch.transpose(train_input.narrow(0,index,1),0,1)
-	current_target = train_target.narrow(0,index,1)
-	return current_sample,current_target
+	return list(reversed(deltas_per_layer))
 	
+
+
+##################################################################################
+
+
+########################### SGD ##################################################
 
 def compute_stoch_gradient(sample_target,sample_data,weights,bias,layers):
 	
@@ -99,49 +118,76 @@ def compute_stoch_gradient(sample_target,sample_data,weights,bias,layers):
 	layer_data = forward_pass(sample_data,layers,weights,bias)
 	ll_delta = last_layer_loss(sample_target,layer_data[len(layer_data)-1])
 	backward_data = backward_pass(ll_delta,layer_data,sample_data,weights,layers)
-	gradient = []
-	for layer_gradient in range(len(layer_data)-1,-1,-1):	
-		print(backward_data[layer_gradient].size())		
-		print(layer_data[len(layer_data) - layer_gradient][0].size())
-		
-	# return delta * xl
+	
+	gradients = []
+
+	for layer_gradient in range(1,len(backward_data)):
+		gradient = torch.mul(backward_data[layer_gradient],layer_data[layer_gradient][0])
+		gradients.append(gradient)		
+
+	return gradients,layer_data
 
 
-def stochastic_gradient_descent(train_input,train_target,layers,nodes_per_hidden_layer,initial_w,max_iters,gamma):
+def stochastic_gradient_descent(train_input,train_target,layers,nodes_per_hidden_layer,max_iters,gamma):
     
 
-	w = initial_w
 	weights = initialize_weights(layers,nodes_per_hidden_layer)	
 	bias = initialize_bias(layers,nodes_per_hidden_layer)
 	index = 0
-	    
-	
+	train_error = 0	
+
 	for n_iter in range(max_iters):
 
 		sample_data,sample_target = get_sample(train_input,train_target,index)
-		grad = compute_stoch_gradient(sample_target,sample_data,weights,bias,layers)
-		# , loss 		
-		#w= np.subtract(w,np.dot(gamma0,grad))
-		#print("Gradient Descent({bi}/{ti}): objective={l}".format(bi=n_iter, ti=max_iters - 1, l=obj))
-		index+=1
+		gradient ,layer_data = compute_stoch_gradient(sample_target,sample_data,weights,bias,layers)
+		
+		train_error = MSE(layer_data[len(layer_data) - 1][1],sample_target)
+		print("Step = {} and loss = {} ".format(n_iter,train_error))
+
+		for i in range(0,len(weights)):
+			
+			weight_loss = torch.mm(torch.transpose(layer_data[i][1],0,1),gradient[i])
+			cnst_row,cnst_col = weight_loss.size()[0],weight_loss.size()[1]
+			learning_rate = torch.Tensor(cnst_row,cnst_col).fill_(gamma)
+			weight_loss = torch.mul(learning_rate,weight_loss)
+			weights[i] = weights[i].sub(weight_loss)
+	
+		index = index + 1
+	
+	return weights,bias
+
+
+#########################################################################
+
+#####################TEST##############################################
+
+def test_network(test_input,test_target,weights,bias,layers,max_iters):
+
+	test_error = 0
+	for n_iter in range(max_iters):
+
+		sample_data,sample_target = get_sample(test_input,test_target,index)
+		layer_data = forward_pass(sample_data,layers,weights,bias)
+		
+		train_error = MSE(layer_data[len(layer_data) - 1][1],sample_target)
+		print("Step = {} and loss = {} ".format(n_iter,train_error)
+		index = index + 1
 	
 
+##############################################################
 
+##################### NN #############################################
 
 def neural_net(layers,nodes_per_hidden_layer):
 
 	train_input, train_target, test_input, test_target = load_data()
 	data_dimension = train_input.size()[1]
-	max_iters = 1
+	nodes_per_hidden_layer = [data_dimension] + nodes_per_hidden_layer 
+	max_iters = 2
 	gamma = 0.2
-	initial_w = []
-	for layer in range(0,layers - 1):
-		initial_w.append(torch.Tensor(1,data_dimension).fill_(0))
-	stochastic_gradient_descent(train_input,train_target,layers,nodes_per_hidden_layer,initial_w,max_iters,gamma)
-
-		
+	weights,bias = stochastic_gradient_descent(train_input,train_target,layers,nodes_per_hidden_layer,max_iters,gamma)
 	
-neural_net(4,[1,3,2,10])
+neural_net(4,[3,2,10])
 
 
 
