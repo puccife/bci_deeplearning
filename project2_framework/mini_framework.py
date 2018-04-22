@@ -127,13 +127,16 @@ def compute_stoch_gradient(sample_target,sample_data,weights,bias,layers):
 	ll_delta = last_layer_loss(sample_target,layer_data[len(layer_data)-1])
 	backward_data = backward_pass(ll_delta,layer_data,sample_data,weights,layers)
 	
-	gradients = []
+	weight_gradients = []
+	bias_gradients = []
 
-	for layer_gradient in range(1,len(backward_data)):
-		gradient = torch.mul(backward_data[layer_gradient],layer_data[layer_gradient][0])
-		gradients.append(gradient)		
+	for i in range(0,len(weights)):
+		weight_loss = torch.mm(torch.transpose(layer_data[i][1],0,1),backward_data[i+1])
+		bias_loss = backward_data[i+1][0,:]
+		weight_gradients.append(weight_loss)
+		bias_gradients.append(bias_loss)
 
-	return gradients,layer_data
+	return weight_gradients,bias_gradients,layer_data
 
 
 def zero_gradient(row_dimension,col_dimension):
@@ -150,25 +153,28 @@ def stochastic_gradient_descent(train_input,train_target,layers,nodes_per_hidden
 
 		sample_data,sample_target = get_sample(train_input,train_target)
 
-		gradient ,layer_data = compute_stoch_gradient(sample_target,sample_data,weights,bias,layers)
+		gradient,bias_gradient,layer_data = compute_stoch_gradient(sample_target,sample_data,weights,bias,layers)
 		
 		train_error = MSE(layer_data[len(layer_data) - 1][1],sample_target)
 		print("Step = {} and loss = {} ".format(n_iter,train_error))
 		
+		
 		for i in range(0,len(weights)):
 			
-			weight_loss = torch.mm(torch.transpose(layer_data[i][1],0,1),gradient[i])
-			cnst_row,cnst_col = weight_loss.size()[0],weight_loss.size()[1]
+			cnst_row,cnst_col = gradient[i].size()[0],gradient[i].size()[1]
 			learning_rate = torch.Tensor(cnst_row,cnst_col).fill_(gamma)
-			weight_loss = torch.mul(learning_rate,weight_loss)
+			#cnst_rows = bias_gradient[i].size()[0]
+			#bias_rate = torch.Tensor(cnst_rows).fill_(gamma)
+			weight_loss = torch.mul(learning_rate,gradient[i])
+			#bias_loss = torch.mul(bias_rate,bias_gradient[i])
 			weights[i] = weights[i].sub(weight_loss)
+			#bias[i] = bias[i].sub(bias_loss)
 			vanishing_gradient = (weights[i] != weights[i])			
 			if(vanishing_gradient.any()):				
 				dimensions = weights[i].size()
 				weights[i] = zero_gradient(dimensions[0],dimensions[1])
 			
 			
-	
 	
 	return weights,bias
 	
@@ -202,7 +208,7 @@ def neural_net(layers,nodes_per_hidden_layer):
 	train_input, train_target, test_input, test_target = load_data()
 	data_dimension = train_input.size()[1]
 	nodes_per_hidden_layer = [data_dimension] + nodes_per_hidden_layer 
-	max_iters = 1000
+	max_iters = 100
 	gamma = 0.2
 	weights,bias = stochastic_gradient_descent(train_input,train_target,layers,nodes_per_hidden_layer,max_iters,gamma)
 	
@@ -212,11 +218,7 @@ neural_net(4,[3,2,10])
 
 
 
-#TODO
-'''
-2)bias descent
-5) classes
-'''
+
 
 
 
