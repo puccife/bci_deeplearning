@@ -42,12 +42,13 @@ def sigma(x):
 def dsigma(x):
 	cnst_row,cnst_col = x.size()[0],x.size()[1]
 	constantA = torch.Tensor(cnst_row,cnst_col).fill_(2)
-	constantB = torch.Tensor(cnst_row,cnst_col).fill_(4)
-	constantC = torch.Tensor(cnst_row,cnst_col).fill_(1)    	
+	constantB = torch.Tensor(cnst_row,cnst_col).fill_(1)    	
 	expo = torch.exp(torch.mul(x,constantA))
-	derivative = torch.div(torch.mul(constantB,x),torch.pow(torch.add(expo,constantC),2))
+	derivative = torch.div(constantA,constantB.add(expo))
 	return derivative
 
+
+	
 
 ####################################################################
 
@@ -143,7 +144,7 @@ def stochastic_gradient_descent(train_input,train_target,layers,nodes_per_hidden
 		
 		train_error = MSE(layer_data[len(layer_data) - 1][1],sample_target)
 		print("Step = {} and loss = {} ".format(n_iter,train_error))
-
+		
 		for i in range(0,len(weights)):
 			
 			weight_loss = torch.mm(torch.transpose(layer_data[i][1],0,1),gradient[i])
@@ -161,9 +162,11 @@ def stochastic_gradient_descent(train_input,train_target,layers,nodes_per_hidden
 
 #####################TEST##############################################
 
+'''
 def test_network(test_input,test_target,weights,bias,layers,max_iters):
 
 	test_error = 0
+	index = 0
 	for n_iter in range(max_iters):
 
 		sample_data,sample_target = get_sample(test_input,test_target,index)
@@ -172,18 +175,19 @@ def test_network(test_input,test_target,weights,bias,layers,max_iters):
 		train_error = MSE(layer_data[len(layer_data) - 1][1],sample_target)
 		print("Step = {} and loss = {} ".format(n_iter,train_error)
 		index = index + 1
-	
+'''	
 
 ##############################################################
 
 ##################### NN #############################################
+
 
 def neural_net(layers,nodes_per_hidden_layer):
 
 	train_input, train_target, test_input, test_target = load_data()
 	data_dimension = train_input.size()[1]
 	nodes_per_hidden_layer = [data_dimension] + nodes_per_hidden_layer 
-	max_iters = 2
+	max_iters = 100
 	gamma = 0.2
 	weights,bias = stochastic_gradient_descent(train_input,train_target,layers,nodes_per_hidden_layer,max_iters,gamma)
 	
@@ -193,8 +197,14 @@ neural_net(4,[3,2,10])
 
 
 
-
-
+#TODO
+'''
+1)random sampling
+2)bias descent
+3) epochs
+4) relu
+5) classes
+'''
 
 
 
