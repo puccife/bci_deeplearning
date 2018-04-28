@@ -197,8 +197,9 @@ def stochastic_gradient_descent(train_input,train_target,layers,nodes_per_hidden
 			learning_rate = torch.Tensor(cnst_row,cnst_col).fill_(gamma) # get stepsize
 			weight_loss = torch.mul(learning_rate,gradient[i][0]) # multiply step size with gradient
 			weights[i].sub_(weight_loss)	# subtract gradient from loss	
-			
-			
+			vanishing_gradient = (weights[i] != weights[i])			
+			if(vanishing_gradient.any()):
+				print("hello nan's every where ")
 	
 	return weights,bias
 	
