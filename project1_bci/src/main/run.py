@@ -14,7 +14,7 @@ import torch.utils.data as dt
 from preprocessing.preprocessing import Preprocess
 import utils.dlc_bci as bci
 import utils.hyperparams as hyperparams
-from model.eegnet.trainer import EEGNetTrainer
+from utils.nn_trainer import Trainer
 
 DATA_PATH = '../../data_bci'
 
@@ -23,7 +23,7 @@ def main(model, epochs, batch_size):
     train_inputs, train_targets = bci.load(root=DATA_PATH, one_khz=True)
     test_inputs, test_targets = bci.load(root=DATA_PATH, train=False, one_khz=True)
 
-    train_inputs, test_inputs = Preprocess().transform(train_inputs, test_inputs)
+    train_inputs, test_inputs = Preprocess().transform(train_inputs, test_inputs, model=model)
 
     # Datasets
     train_dataset = dt.TensorDataset(train_inputs, train_targets)
@@ -35,12 +35,9 @@ def main(model, epochs, batch_size):
                                 batch_size=batch_size,
                                 shuffle=True)
 
-    tr = EEGNetTrainer(num_epochs=epochs, batch_size=batch_size)
-
-    tr.train(train_loader=train_loader, test_loader=test_loader)
-
-    tr.create_graph()
-
+    t = Trainer(model, batch_size, epochs)
+    t.train(train_loader, test_loader)
+    t.create_graph()
     return 0
 
 if __name__ == '__main__':

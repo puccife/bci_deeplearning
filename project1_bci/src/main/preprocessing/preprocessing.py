@@ -20,10 +20,10 @@ class Preprocess:
         - train_inputs: preprocessed data for training
         - test_inputs: preprocessed data for testing
     """
-    def transform(self, train_inputs, test_inputs, extend=True):
+    def transform(self, train_inputs, test_inputs, model='EEG'):
         train_inputs, test_inputs = self.__permutate(train_inputs, test_inputs)
         train_inputs, test_inputs = self.__normalize(train_inputs, test_inputs)
-        if extend:
+        if model=='EEG':
             train_inputs, test_inputs = self.__shape2D(train_inputs, test_inputs)
         return train_inputs, test_inputs
 
