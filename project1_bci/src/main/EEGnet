@@ -1,89 +1,89 @@
 digraph {
 	graph [size="12,12"]
 	node [align=left fontsize=12 height=0.2 ranksep=0.1 shape=box style=filled]
-	4497059064 [label=SigmoidBackward0]
-	4497057384 -> 4497059064
-	4497057384 [label=AddmmBackward]
-	4687104936 -> 4497057384
-	4687104936 [label=ExpandBackward]
-	4687104768 -> 4687104936
-	4687104768 [label="fc1.bias
+	4403686704 [label=SigmoidBackward]
+	4403685024 -> 4403686704
+	4403685024 [label=AddmmBackward]
+	4661160088 -> 4403685024
+	4661160088 [label=ExpandBackward]
+	4661159864 -> 4661160088
+	4661159864 [label="fc1.bias
  (1)" fillcolor=lightblue]
-	4687104880 -> 4497057384
-	4687104880 [label=ViewBackward]
-	4687104712 -> 4687104880
-	4687104712 [label=MaxPool2DBackward]
-	4589106904 -> 4687104712
-	4589106904 [label=DropoutBackward]
-	4687104264 -> 4589106904
-	4687104264 [label=BatchNormBackward]
-	4687105048 -> 4687104264
-	4687105048 [label=EluBackward]
-	4687105384 -> 4687105048
-	4687105384 [label=ConvNdBackward]
-	4589107240 -> 4687105384
-	4589107240 [label=ConstantPadNdBackward]
-	4687105664 -> 4589107240
-	4687105664 [label=MaxPool2DBackward]
-	4589107576 -> 4687105664
-	4589107576 [label=DropoutBackward]
-	4687105832 -> 4589107576
-	4687105832 [label=BatchNormBackward]
-	4687105944 -> 4687105832
-	4687105944 [label=EluBackward]
-	4589211832 -> 4687105944
-	4589211832 [label=ConvNdBackward]
-	4589107912 -> 4589211832
-	4589107912 [label=ConstantPadNdBackward]
-	4589212112 -> 4589107912
-	4589212112 [label=PermuteBackward]
-	4589108248 -> 4589212112
-	4589108248 [label=DropoutBackward]
-	4589212280 -> 4589108248
-	4589212280 [label=BatchNormBackward]
-	4589212392 -> 4589212280
-	4589212392 [label=EluBackward]
-	4589212616 -> 4589212392
-	4589212616 [label=ConvNdBackward]
-	4589212728 -> 4589212616
-	4589212728 [label="conv1.weight
+	4661159360 -> 4403685024
+	4661159360 [label=ViewBackward]
+	4661159808 -> 4661159360
+	4661159808 [label=MaxPool2DBackward]
+	4723742384 -> 4661159808
+	4723742384 [label=DropoutBackward]
+	4661161376 -> 4723742384
+	4661161376 [label=ThnnBatchNormBackward]
+	4661161600 -> 4661161376
+	4661161600 [label=EluBackward]
+	4661160872 -> 4661161600
+	4661160872 [label=ThnnConv2DBackward]
+	4723742712 -> 4661160872
+	4723742712 [label=ConstantPadNdBackward]
+	4661161880 -> 4723742712
+	4661161880 [label=MaxPool2DBackward]
+	4723743040 -> 4661161880
+	4723743040 [label=DropoutBackward]
+	4661161712 -> 4723743040
+	4661161712 [label=ThnnBatchNormBackward]
+	4661160144 -> 4661161712
+	4661160144 [label=EluBackward]
+	4723703880 -> 4661160144
+	4723703880 [label=ThnnConv2DBackward]
+	4723743368 -> 4723703880
+	4723743368 [label=ConstantPadNdBackward]
+	4723704160 -> 4723743368
+	4723704160 [label=PermuteBackward]
+	4723743696 -> 4723704160
+	4723743696 [label=DropoutBackward]
+	4723704328 -> 4723743696
+	4723704328 [label=ThnnBatchNormBackward]
+	4723704440 -> 4723704328
+	4723704440 [label=EluBackward]
+	4723704664 -> 4723704440
+	4723704664 [label=ThnnConv2DBackward]
+	4723704776 -> 4723704664
+	4723704776 [label="conv1.weight
  (8, 1, 1, 28)" fillcolor=lightblue]
-	4589212784 -> 4589212616
-	4589212784 [label="conv1.bias
+	4723704832 -> 4723704664
+	4723704832 [label="conv1.bias
  (8)" fillcolor=lightblue]
-	4589212448 -> 4589212280
-	4589212448 [label="batchnorm1.weight
+	4723704496 -> 4723704328
+	4723704496 [label="batchnorm1.weight
  (8)" fillcolor=lightblue]
-	4589212504 -> 4589212280
-	4589212504 [label="batchnorm1.bias
+	4723704552 -> 4723704328
+	4723704552 [label="batchnorm1.bias
  (8)" fillcolor=lightblue]
-	4589211944 -> 4589211832
-	4589211944 [label="conv2.weight
+	4723703992 -> 4723703880
+	4723703992 [label="conv2.weight
  (4, 1, 2, 20)" fillcolor=lightblue]
-	4589212000 -> 4589211832
-	4589212000 [label="conv2.bias
+	4723704048 -> 4723703880
+	4723704048 [label="conv2.bias
  (4)" fillcolor=lightblue]
-	4687106000 -> 4687105832
-	4687106000 [label="batchnorm2.weight
+	4423542656 -> 4661161712
+	4423542656 [label="batchnorm2.weight
  (4)" fillcolor=lightblue]
-	4589211720 -> 4687105832
-	4589211720 [label="batchnorm2.bias
+	4423542208 -> 4661161712
+	4423542208 [label="batchnorm2.bias
  (4)" fillcolor=lightblue]
-	4687105496 -> 4687105384
-	4687105496 [label="conv3.weight
+	4661161824 -> 4661160872
+	4661161824 [label="conv3.weight
  (4, 4, 8, 4)" fillcolor=lightblue]
-	4687105552 -> 4687105384
-	4687105552 [label="conv3.bias
+	4661161040 -> 4661160872
+	4661161040 [label="conv3.bias
  (4)" fillcolor=lightblue]
-	4687105104 -> 4687104264
-	4687105104 [label="batchnorm3.weight
+	4661161264 -> 4661161376
+	4661161264 [label="batchnorm3.weight
  (4)" fillcolor=lightblue]
-	4687105160 -> 4687104264
-	4687105160 [label="batchnorm3.bias
+	4661161432 -> 4661161376
+	4661161432 [label="batchnorm3.bias
  (4)" fillcolor=lightblue]
-	4687104208 -> 4497057384
-	4687104208 [label=TBackward]
-	4687104656 -> 4687104208
-	4687104656 [label="fc1.weight
+	4661159976 -> 4403685024
+	4661159976 [label=TBackward]
+	4661159752 -> 4661159976
+	4661159752 [label="fc1.weight
  (1, 124)" fillcolor=lightblue]
 }

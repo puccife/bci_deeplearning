@@ -1,24 +1,15 @@
 import argparse
 
-import numpy as np
-from sklearn.metrics import roc_auc_score, precision_score, recall_score, accuracy_score
-import torch
-import collections
-import torch.nn as nn
-import torch.optim as optim
-from torch.autograd import Variable
-import torch.nn.functional as F
-import torch.optim as optim
 import torch.utils.data as dt
-
-from preprocessing.preprocessing import Preprocess
 import utils.dlc_bci as bci
 import utils.hyperparams as hyperparams
+from preprocessing.preprocessing import Preprocess
 from utils.nn_trainer import Trainer
 
 DATA_PATH = '../../data_bci'
 
 def main(model, epochs, batch_size):
+
 
     train_inputs, train_targets = bci.load(root=DATA_PATH, one_khz=True)
     test_inputs, test_targets = bci.load(root=DATA_PATH, train=False, one_khz=True)
