@@ -4,17 +4,17 @@ import torch.utils.data as dt
 import utils.dlc_bci as bci
 import utils.hyperparams as hyperparams
 from preprocessing.preprocessing import Preprocess
-from utils.nn_trainer import Trainer
+from model.trainer import NetTrainer
 
 DATA_PATH = '../../data_bci'
 
 def main(model, epochs, batch_size):
 
 
-    train_inputs, train_targets = bci.load(root=DATA_PATH, one_khz=True)
-    test_inputs, test_targets = bci.load(root=DATA_PATH, train=False, one_khz=True)
+    train_inputs, train_targets = bci.load(root=DATA_PATH, one_khz=False)
+    test_inputs, test_targets = bci.load(root=DATA_PATH, train=False, one_khz=False)
 
-    train_inputs, test_inputs = Preprocess().transform(train_inputs, test_inputs, model=model)
+    train_inputs, test_inputs = Preprocess().transform(train_inputs, test_inputs, train_targets, test_targets)
 
     # Datasets
     train_dataset = dt.TensorDataset(train_inputs, train_targets)
@@ -26,7 +26,7 @@ def main(model, epochs, batch_size):
                                 batch_size=batch_size,
                                 shuffle=True)
 
-    t = Trainer(model, batch_size, epochs)
+    t = NetTrainer(epochs, batch_size, model)
     t.train(train_loader, test_loader)
     t.create_graph()
     return 0

@@ -1,0 +1,63 @@
+import math
+import torch.nn as nn
+
+
+class CNN(nn.Module):
+
+    def __init__(self, kernel_size=5, padding=2, init_weights=True):
+        super(CNN, self).__init__()
+        self.layer1 = nn.Sequential(
+            nn.Conv1d(1, 16, kernel_size, padding=padding),
+            nn.BatchNorm1d(16),
+            nn.ELU(),
+            nn.Dropout2d(0.5),
+            nn.MaxPool1d(2))
+        self.layer2 = nn.Sequential(
+            nn.Conv1d(16, 64, kernel_size=kernel_size, padding=padding),
+            nn.BatchNorm1d(64),
+            nn.ELU(),
+            nn.Dropout2d(0.5),
+            nn.MaxPool1d(2))
+        self.layer3 = nn.Sequential(
+            nn.Conv1d(64, 256, kernel_size=kernel_size, padding=padding),
+            nn.BatchNorm1d(256),
+            nn.ELU(),
+            nn.Dropout2d(0.5),
+            nn.MaxPool1d(2))
+        self.fc = nn.Linear(256, 2)
+
+        if init_weights:
+            self._initialize_weights()
+
+    def _initialize_weights(self):
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv1d):
+                n = m.kernel_size[0] * m.out_channels
+                m.weight.data.normal_(0, math.sqrt(2. / n))
+                if m.bias is not None:
+                    m.bias.data.zero_()
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+
+            elif isinstance(m, nn.Linear):
+                m.weight.data.normal_(0, 0.01)
+                m.bias.data.zero_()
+
+    def forward(self, x):
+        debugging = False
+        x = x.unsqueeze(1).float()
+        print(x.shape) if debugging else ...
+        x = self.layer1(x)
+        print(x.shape) if debugging else ...
+        x = self.layer2(x)
+        print(x.shape) if debugging else ...
+        x = self.layer3(x)
+        print(x.shape) if debugging else ...
+        x = x.view(x.size(0), -1)
+        print(x.shape) if debugging else ...
+        out = self.fc(x)
+        print(x.shape) if debugging else ...
+        return out
+
