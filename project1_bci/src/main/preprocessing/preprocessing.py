@@ -87,11 +87,12 @@ class Preprocess:
         csp.fit(train_inputs, train_targets)
         train_inputs = csp.transform(train_inputs)
         train_inputs = ChanVar().transform(train_inputs)
-        train_inputs = torch.from_numpy(train_inputs)
 
         csp_test = CSP().fit(test_inputs, test_targets)
         test_inputs = csp_test.transform(test_inputs)
         test_inputs = ChanVar().transform(test_inputs)
+
+        train_inputs = torch.from_numpy(train_inputs)
         test_inputs = torch.from_numpy(test_inputs)
 
         return train_inputs, test_inputs

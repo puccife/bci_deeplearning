@@ -11,9 +11,7 @@ class CSP(base.BaseEstimator, base.TransformerMixin):
         # calculate per-class covariance
         for ci in np.unique(y):
             class_mask = y == ci
-            num_ones = class_mask.sum()
             x_filtered = X[class_mask]
-            # to_cov = np.hstack(X[class_mask])
             to_cov = np.concatenate(x_filtered, axis=1)
             class_covs.append(np.cov(to_cov))
         assert len(class_covs) == 2
