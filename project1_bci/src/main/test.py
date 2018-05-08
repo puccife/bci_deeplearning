@@ -8,7 +8,7 @@ from model.trainer import NetTrainer
 
 DATA_PATH = '../../data_bci'
 
-def main(model, epochs, batch_size):
+def main(model, epochs, batch_size, weight_decay):
 
 
     train_inputs, train_targets = bci.load(root=DATA_PATH, one_khz=False)
@@ -26,7 +26,7 @@ def main(model, epochs, batch_size):
                                 batch_size=batch_size,
                                 shuffle=True)
 
-    t = NetTrainer(epochs, batch_size, model)
+    t = NetTrainer(epochs, batch_size, weight_decay, model)
     t.train(train_loader, test_loader)
     t.create_graph()
     return 0
@@ -35,11 +35,11 @@ if __name__ == '__main__':
     model, \
     epochs, \
     batch_size, \
-    learning_rate = hyperparams.load_config()
+    weight_decay = hyperparams.load_config()
 
     parser = argparse.ArgumentParser(description='Select ECOBICI dataset to load.')
     parser.add_argument("-m", "--model", help="Model for training", type=str, default=model)
     parser.add_argument("-e", "--epochs", help="Number of training epochs", type=int, default=epochs)
     parser.add_argument("-b", "--batch_size", help="Batch size for training", type=int, default=batch_size)
     args = parser.parse_args()
-    main(args.model, args.epochs, args.batch_size)
+    main(args.model, args.epochs, args.batch_size, weight_decay)
