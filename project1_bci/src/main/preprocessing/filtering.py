@@ -4,6 +4,79 @@ from sklearn import base
 from scipy import signal
 
 
+def whitening_transform(cov_matrix, cut_off=1e-15):
+    """
+    Calculate the whitening transform for signals in order
+    to remove covariance among them
+
+    :param cov_matrix: covariance matrix of signals
+    :param cut_off: fraction of the largest eigenvalue of the matrix C
+    """
+    eigen_values, eigenvectors = np.linalg.eigh(cov_matrix)
+
+    return np.linalg.multi_dot([eigenvectors,
+                                np.diag(np.where(eigen_values > np.max(eigen_values) * cut_off,
+                                                 eigen_values,
+                                                 np.inf) ** -.5),
+                                eigenvectors.T])
+
+
+
+def outer_n(n):
+    '''
+    Return a list with indices from both ends. Used for CSP.
+
+    Parameters
+    ----------
+    n : int
+      The number of indices to select.
+
+    Returns
+    -------
+    out : array
+      Contains the indices picked from both ends.
+
+    See also
+    --------
+    csp : common spatial patterns algorithm.
+
+    Examples
+    --------
+    >>> outer_n(6)
+    array([ 0,  1,  2, -3, -2, -1])
+
+    '''
+    return np.roll(np.arange(n) - int(n / 2), int(n / 2))
+
+
+def csp(cov_first_class, cov_second_class, num_of_filters):
+    """
+    implementation of the common spatial patterns (CSP).
+
+    :param cov_first_class: signals covariance for class 1
+    :param cov_second_class: signal covariance for class 2
+    :param num_of_filters: number of CSP filters to return, this number must be even
+    """
+    assert num_of_filters % 2 == 0
+
+    whitened_matrix = whitening_transform(cov_first_class + cov_second_class)
+    P_C_b = np.linalg.multi_dot([whitened_matrix, cov_second_class, whitened_matrix.T])
+    _, _, B = np.linalg.svd((P_C_b))
+    csp_matrix_full = np.dot(B, whitened_matrix.T)
+    assert csp_matrix_full.shape[1] >= num_of_filters
+
+    half_num_filters = int(num_of_filters / 2)
+
+    # selecting the indices of the wanted filters from begin and the end of the rows
+    # for num_filters = 4 --> indices [0,1,-2,-1]
+    indices = np.roll(np.arange(num_of_filters - half_num_filters), half_num_filters)
+
+    # returning the selected filters extracted from the full csp matrix
+    return csp_matrix_full[indices]
+
+#########################
+
+
 class CSP(base.BaseEstimator, base.TransformerMixin):
     def fit(self, X, y):
         class_covs = []
@@ -17,7 +90,7 @@ class CSP(base.BaseEstimator, base.TransformerMixin):
         assert len(class_covs) == 2
 
         # calculate CSP spatial filters, the third argument is the number of filters to extract
-        self.W = spatfilt.csp(class_covs[0], class_covs[1], 8)
+        self.W = csp(class_covs[0], class_covs[1], 8)
         print("csp concluded, spatial filter computed!")
         return self
 
