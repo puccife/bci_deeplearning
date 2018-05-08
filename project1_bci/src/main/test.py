@@ -37,7 +37,7 @@ if __name__ == '__main__':
     batch_size, \
     weight_decay = hyperparams.load_config()
 
-    parser = argparse.ArgumentParser(description='Select ECOBICI dataset to load.')
+    parser = argparse.ArgumentParser(description='Run deep learning model for BCI data classification.')
     parser.add_argument("-m", "--model", help="Model for training", type=str, default=model)
     parser.add_argument("-e", "--epochs", help="Number of training epochs", type=int, default=epochs)
     parser.add_argument("-b", "--batch_size", help="Batch size for training", type=int, default=batch_size)
