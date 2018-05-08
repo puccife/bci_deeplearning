@@ -1,6 +1,6 @@
 {
-  "model": "EEG",
-  "epochs": 20,
-  "batch_size": 1,
-  "learning_rate": 1e-8
+  "model": "CNN",
+  "epochs": 100,
+  "batch_size": 10,
+  "learning_rate": 0.00001
 }

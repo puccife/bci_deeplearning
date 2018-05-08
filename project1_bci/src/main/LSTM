@@ -1,0 +1,76 @@
+digraph {
+	graph [size="12,12"]
+	node [align=left fontsize=12 height=0.2 ranksep=0.1 shape=box style=filled]
+	4856377240 [label=AddmmBackward]
+	4856376064 -> 4856377240
+	4856376064 [label=ExpandBackward]
+	4856373936 -> 4856376064
+	4856373936 [label="fc.bias
+ (2)" fillcolor=lightblue]
+	4856376232 -> 4856377240
+	4856376232 [label=ViewBackward]
+	4856374216 -> 4856376232
+	4856374216 [label=LeakyReluBackward0]
+	4856373488 -> 4856374216
+	4856373488 [label=TransposeBackward]
+	4856373768 -> 4856373488
+	4856373768 [label=CatBackward]
+	4856376288 -> 4856373768
+	4856376288 [label=ViewBackward]
+	4856373824 -> 4856376288
+	4856373824 [label=CatBackward]
+	4856376456 -> 4856373824
+	4856376456 [label=MulBackward1]
+	4856373376 -> 4856376456
+	4856373376 [label=SigmoidBackward]
+	4856376680 -> 4856373376
+	4856376680 [label=SplitBackward]
+	4856373600 -> 4856376680
+	4856373600 [label=AddBackward1]
+	4856376008 -> 4856373600
+	4856376008 [label=AddmmBackward]
+	4844947832 -> 4856376008
+	4844947832 [label=ExpandBackward]
+	4844947776 -> 4844947832
+	4844947776 [label="dlstm.bias_ih_l0
+ (256)" fillcolor=lightblue]
+	4844947944 -> 4856376008
+	4844947944 [label=TBackward]
+	4844947888 -> 4844947944
+	4844947888 [label="dlstm.weight_ih_l0
+ (256, 8)" fillcolor=lightblue]
+	4856374048 -> 4856373600
+	4856374048 [label=AddmmBackward]
+	4844948000 -> 4856374048
+	4844948000 [label=ExpandBackward]
+	4845825496 -> 4844948000
+	4845825496 [label="dlstm.bias_hh_l0
+ (256)" fillcolor=lightblue]
+	4845822192 -> 4856374048
+	4845822192 [label=TBackward]
+	4845822584 -> 4845822192
+	4845822584 [label="dlstm.weight_hh_l0
+ (256, 64)" fillcolor=lightblue]
+	4856374104 -> 4856376456
+	4856374104 [label=TanhBackward]
+	4856373544 -> 4856374104
+	4856373544 [label=AddBackward1]
+	4856374272 -> 4856373544
+	4856374272 [label=MulBackward1]
+	4845825328 -> 4856374272
+	4845825328 [label=SigmoidBackward]
+	4856376680 -> 4845825328
+	4845825440 -> 4856373544
+	4845825440 [label=MulBackward1]
+	4845825048 -> 4845825440
+	4845825048 [label=SigmoidBackward]
+	4856376680 -> 4845825048
+	4845824768 -> 4845825440
+	4845824768 [label=TanhBackward]
+	4856376680 -> 4845824768
+	4856373712 -> 4856377240
+	4856373712 [label=TBackward]
+	4856373880 -> 4856373712
+	4856373880 [label="fc.weight
+ (2, 64)" fillcolor=lightblue]
+}

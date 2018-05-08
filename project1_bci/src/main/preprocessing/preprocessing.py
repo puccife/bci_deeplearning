@@ -1,3 +1,5 @@
+from .filtering import *
+import torch
 """
 This class is used to preprocess the data.
 @authors:
@@ -20,27 +22,10 @@ class Preprocess:
         - train_inputs: preprocessed data for training
         - test_inputs: preprocessed data for testing
     """
-    def transform(self, train_inputs, test_inputs, model='EEG', permutate=True):
-        if permutate:
-            train_inputs, test_inputs = self.__permutate(train_inputs, test_inputs)
-
+    def transform(self, train_inputs, test_inputs, train_targets, test_targets):
         train_inputs, test_inputs = self.__normalize(train_inputs, test_inputs)
-        if model=='EEG':
-            train_inputs, test_inputs = self.__shape2D(train_inputs, test_inputs)
+        train_inputs, test_inputs = self.__filter(train_inputs, test_inputs, train_targets, test_targets)
         return train_inputs, test_inputs
-
-
-    """
-    Function used to permutate the shape of the data. (S = samples, T = timeseries, C = channels)
-    @:parameters
-        - train_inputs: training data with shape (S, C, T)
-        - test_inputs: testing data with shape (S, C, T)
-    @:returns
-        - train_inputs: training data with shape (S, T, C)
-        - test_inputs: testing data with shape (S, T, C)
-    """
-    def __permutate(self, train_inputs, test_inputs):
-        return train_inputs.permute(0, 2, 1), test_inputs.permute(0, 2, 1)
 
 
     """
@@ -88,7 +73,28 @@ class Preprocess:
     """
     Filtering signal
     """
-    def __filter(self, train_inputs, test_inputs):
+    def __filter(self, train_inputs, test_inputs, train_targets, test_targets):
+
+        train_inputs = train_inputs.numpy()
+        train_targets = train_targets.numpy()
+        test_inputs = test_inputs.numpy()
+        test_targets = test_targets.numpy()
+
+        train_inputs, test_inputs = ButterFilter().apply_filter(train_inputs, test_inputs)
+
+        # projecting on spacial filters
+        csp = CSP()
+        csp.fit(train_inputs, train_targets)
+        train_inputs = csp.transform(train_inputs)
+        train_inputs = ChanVar().transform(train_inputs)
+
+        csp_test = CSP().fit(test_inputs, test_targets)
+        test_inputs = csp_test.transform(test_inputs)
+        test_inputs = ChanVar().transform(test_inputs)
+
+        train_inputs = torch.from_numpy(train_inputs)
+        test_inputs = torch.from_numpy(test_inputs)
+
         return train_inputs, test_inputs
 
 
@@ -97,3 +103,10 @@ class Preprocess:
     """
     def __extract_channels(self, train_inputs, test_inputs):
         return train_inputs, test_inputs
+
+    def PCA(self, X, k=3):
+        # preprocess the data
+        X = X - torch.mean(X, 0).expand_as(X)
+        # svd
+        U, S, V = torch.svd(torch.t(X))
+        return torch.mm(X, U[:, :k])
