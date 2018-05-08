@@ -17,9 +17,9 @@ def load_config():
     model = config['model']
     epochs = config['epochs']
     batch_size = config['batch_size']
-    learning_rate = config['learning_rate']
+    weight_decay = config['weight_decay']
 
-    return model, epochs, batch_size, learning_rate
+    return model, epochs, batch_size, weight_decay
 
 
 

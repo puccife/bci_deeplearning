@@ -4,26 +4,28 @@ import torch.nn as nn
 
 class CNN(nn.Module):
 
-    def __init__(self, kernel_size=5, padding=2, init_weights=True):
+    def __init__(self, kernel_size=4, padding=2, init_weights=False):
         super(CNN, self).__init__()
         self.layer1 = nn.Sequential(
-            nn.Conv1d(1, 16, kernel_size, padding=padding),
+            nn.Conv1d(1, 16, kernel_size=kernel_size, padding=padding),
             nn.BatchNorm1d(16),
-            nn.ELU(),
-            nn.Dropout2d(0.5),
+            nn.LeakyReLU(),
+            nn.Dropout2d(0.9),
             nn.MaxPool1d(2))
         self.layer2 = nn.Sequential(
-            nn.Conv1d(16, 64, kernel_size=kernel_size, padding=padding),
+            nn.Conv1d(16, 64, kernel_size=4, padding=padding),
             nn.BatchNorm1d(64),
-            nn.ELU(),
-            nn.Dropout2d(0.5),
-            nn.MaxPool1d(2))
+            nn.LeakyReLU(),
+            nn.Dropout2d(0.9),
+            nn.MaxPool1d(2)
+            )
         self.layer3 = nn.Sequential(
-            nn.Conv1d(64, 256, kernel_size=kernel_size, padding=padding),
+            nn.Conv1d(64, 256, kernel_size=4, padding=padding),
             nn.BatchNorm1d(256),
-            nn.ELU(),
-            nn.Dropout2d(0.5),
-            nn.MaxPool1d(2))
+            nn.LeakyReLU(),
+            nn.Dropout2d(0.9),
+            nn.MaxPool1d(2)
+            )
         self.fc = nn.Linear(256, 2)
 
         if init_weights:
@@ -50,8 +52,10 @@ class CNN(nn.Module):
         x = x.unsqueeze(1).float()
         print(x.shape) if debugging else ...
         x = self.layer1(x)
+        print('layer 1') if debugging else ...
         print(x.shape) if debugging else ...
         x = self.layer2(x)
+        print('layer 2') if debugging else ...
         print(x.shape) if debugging else ...
         x = self.layer3(x)
         print(x.shape) if debugging else ...

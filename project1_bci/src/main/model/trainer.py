@@ -17,9 +17,10 @@ from tensorboardX import SummaryWriter
 
 class NetTrainer:
 
-    def __init__(self, num_epochs, batch_size, model='CNN'):
+    def __init__(self, num_epochs, batch_size, weight_decay, model='CNN'):
         self.num_epochs = num_epochs
         self.batch_size = batch_size
+        self.weight_decay = weight_decay
         self.model = model
         if model == 'CNN':
             self.net = CNN()
@@ -40,7 +41,7 @@ class NetTrainer:
         self.writer.add_text('model', str(args))
         self.criterion = nn.CrossEntropyLoss()
         # Setting optimizer
-        optimizer = optim.Adamax(self.net.parameters())
+        optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         best_accuracy = 0
         # Training
         for epoch in range(self.num_epochs):  # loop over the dataset multiple times
