@@ -58,7 +58,6 @@ class NetTrainer:
                 loss.backward(retain_graph=True)
                 optimizer.step()
                 running_loss += loss.data[0]
-            print("\t• Training Loss (avg)", torch.mean(running_loss))
             # Evaluating on training dataset
             self.__evaluate("\t\t- Train", self.net, train_loader, epoch)
             # Returning best test accuracy
@@ -87,9 +86,8 @@ class NetTrainer:
             predictions.extend(predicted)
             self.writer.add_scalar(label+'/loss', loss, epoch * size + i)
             running_loss += loss.data[0]
-        if testing:
-            print("\t• Testing Loss (avg)", torch.mean(running_loss))
 
+        print("\t• "+label+" Loss (avg)", running_loss / len(loader))
         accuracy = accuracy_score(correct_targets, predictions)
         self.writer.add_scalar(label + '/accuracy', (accuracy * 100), epoch)
         print(label, ' accuracy of the model : ', accuracy)

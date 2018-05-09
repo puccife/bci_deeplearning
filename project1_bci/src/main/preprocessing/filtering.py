@@ -48,37 +48,26 @@ def csp(cov_first_class, cov_second_class, num_of_filters):
 #########################
 
 
-class CSP(base.BaseEstimator, base.TransformerMixin):
-    def fit(self, X, y):
-        class_covs = []
+def apply_csp(X, y, filters=8):
+    class_covs = []
+    # calculate per-class covariance
+    for ci in np.unique(y):
+        class_mask = y == ci
+        x_filtered = X[class_mask]
+        to_cov = np.concatenate(x_filtered, axis=1)
+        class_covs.append(np.cov(to_cov))
+    assert len(class_covs) == 2
+    # calculate CSP spatial filters, the third argument is the number of filters to extract
+    W = csp(class_covs[0], class_covs[1], filters)
+    print("projection on the spatial filter started!")
+    projection = np.asarray([np.dot(W, trial) for trial in X])
+    print("applied csp")
+    return projection
 
-        # calculate per-class covariance
-        for ci in np.unique(y):
-            class_mask = y == ci
-            x_filtered = X[class_mask]
-            to_cov = np.concatenate(x_filtered, axis=1)
-            class_covs.append(np.cov(to_cov))
-        assert len(class_covs) == 2
-
-        # calculate CSP spatial filters, the third argument is the number of filters to extract
-        self.W = csp(class_covs[0], class_covs[1], 8)
-        print("csp concluded, spatial filter computed!")
-        return self
-
-    def transform(self, X):
-        # Note that the projection on the spatial filter expects zero-mean data.
-        print("projection on the spatial filter started!")
-        projection = np.asarray([np.dot(self.W, trial) for trial in X])
-        return projection
-
-
-class ChanVar(base.BaseEstimator, base.TransformerMixin):
-    def fit(self, X, y): return self
-
-    def transform(self, X):
-        print("variance on channels started!")
-        result = np.var(X, axis=2)  # X.shape = (trials, channels, time)
-        return result
+def apply_channel_variance(X):
+    print("variance on channels started!")
+    result = np.var(X, axis=2)
+    return result
 
 class ButterFilter:
     def apply_filter(self, train_inputs, test_inputs):
