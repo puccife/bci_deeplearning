@@ -1,23 +1,18 @@
 import numpy as np
-from sklearn import base
 from scipy import signal
 
 
-def whitening_transform(cov_matrix, cut_off=1e-15):
+def whitening_transform(cov_matrix):
     """
     Calculate the whitening transform for signals in order
     to remove covariance among them
 
     :param cov_matrix: covariance matrix of signals
-    :param cut_off: fraction of the largest eigenvalue of the matrix C
     """
-    eigen_values, eigenvectors = np.linalg.eigh(cov_matrix)
+    u, s, v = np.linalg.svd(cov_matrix)
 
-    return np.linalg.multi_dot([eigenvectors,
-                                np.diag(np.where(eigen_values > np.max(eigen_values) * cut_off,
-                                                 eigen_values,
-                                                 np.inf) ** -.5),
-                                eigenvectors.T])
+    # returning the whitening transormation
+    return np.dot(u, np.dot(np.sqrt(np.linalg.inv(np.diag(s))), v))
 
 
 def csp(cov_first_class, cov_second_class, num_of_filters):
@@ -31,9 +26,10 @@ def csp(cov_first_class, cov_second_class, num_of_filters):
     assert num_of_filters % 2 == 0
 
     whitened_matrix = whitening_transform(cov_first_class + cov_second_class)
-    P_C_b = np.linalg.multi_dot([whitened_matrix, cov_second_class, whitened_matrix.T])
-    _, _, B = np.linalg.svd((P_C_b))
-    csp_matrix_full = np.dot(B, whitened_matrix.T)
+
+    whitened_cov_second_class = np.linalg.multi_dot([whitened_matrix, cov_second_class, whitened_matrix.T])
+    u, s, v = np.linalg.svd(whitened_cov_second_class)
+    csp_matrix_full = np.dot(v, whitened_matrix)
     assert csp_matrix_full.shape[1] >= num_of_filters
 
     half_num_filters = int(num_of_filters / 2)
@@ -45,34 +41,33 @@ def csp(cov_first_class, cov_second_class, num_of_filters):
     # returning the selected filters extracted from the full csp matrix
     return csp_matrix_full[indices]
 
-#########################
-
 
 def apply_csp(X, y, on, filters=8):
-    class_covs = []
+    cov_matrices_list = []
     # calculate per-class covariance
-    for ci in np.unique(y):
-        class_mask = y == ci
+    for class_ in np.unique(y):
+        class_mask = y == class_
         x_filtered = X[class_mask]
         to_cov = np.concatenate(x_filtered, axis=1)
-        class_covs.append(np.cov(to_cov))
-    assert len(class_covs) == 2
+        cov_matrices_list.append(np.cov(to_cov))
+    assert len(cov_matrices_list) == 2
     # calculate CSP spatial filters, the third argument is the number of filters to extract
-    W = csp(class_covs[0], class_covs[1], filters)
+    W = csp(cov_matrices_list[0], cov_matrices_list[1], filters)
     print("projection on the spatial filter started!")
     projection = np.asarray([np.dot(W, trial) for trial in on])
     print("applied csp")
     return projection
+
 
 def apply_channel_variance(X):
     print("variance on channels started!")
     result = np.var(X, axis=2)
     return result
 
+
 class ButterFilter:
-    def apply_filter(self, train_inputs, test_inputs):
+    def apply_filter(self, train_inputs, test_inputs, sample_rate=100):
         # create band-pass filter for the  8--30 Hz where the power change is expected
-        sample_rate = 100
         (b, a) = signal.butter(6, np.array([8, 30]) / (sample_rate / 2), btype='bandpass')
 
         # band-pass filter the EEG
