@@ -2,10 +2,11 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
-
+from torchvision import models
 import numpy as np
 
 from .nets.cnn import CNN
+from .nets.cnn2d_nofilter import TheNet
 from .nets.lstm import LSTM
 from .baselines.logistic import LogisticRegression
 
@@ -18,16 +19,23 @@ from tensorboardX import SummaryWriter
 class NetTrainer:
 
     def __init__(self, num_epochs, batch_size, weight_decay, model='CNN'):
+        self.criterion = nn.CrossEntropyLoss()
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.weight_decay = weight_decay
         self.model = model
         if model == 'CNN':
             self.net = CNN()
+            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         elif model == 'LSTM':
             self.net = LSTM()
+            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         elif model == 'LOG':
             self.net = LogisticRegression()
+            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
+        elif model == 'CONV2D':
+            self.net = TheNet()
+            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=0.0, lr=0.001)
         else:
             raise RuntimeError('No model found')
 
@@ -39,9 +47,8 @@ class NetTrainer:
             'epochs':self.num_epochs,
         }
         self.writer.add_text('model', str(args))
-        self.criterion = nn.CrossEntropyLoss()
+
         # Setting optimizer
-        optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         best_accuracy = 0
         # Training
         for epoch in range(self.num_epochs):  # loop over the dataset multiple times
@@ -51,12 +58,12 @@ class NetTrainer:
                 inputs = Variable(inputs.float())
                 labels = Variable(labels)
                 # zero the parameter gradients
-                optimizer.zero_grad()
+                self.optimizer.zero_grad()
                 # forward + backward + optimize
                 outputs = self.net(inputs)
                 loss = self.criterion(outputs, labels)
                 loss.backward(retain_graph=True)
-                optimizer.step()
+                self.optimizer.step()
                 running_loss += loss.data[0]
             # Evaluating on training dataset
             self.__evaluate("\t\t- Train", self.net, train_loader, epoch)
@@ -70,11 +77,9 @@ class NetTrainer:
     def __evaluate(self, label, net, loader, epoch, testing=False, best_accuracy=0):
         # Test the Model
         net.eval()  # Change model to 'eval' mode (BN uses moving mean/var).
-        size = 100 if testing else 316
         running_loss = 0.0
         predictions = []
         correct_targets = []
-
         for i, (inputs, labels) in enumerate(loader):
             inputs = Variable(inputs.float())
             labels = Variable(labels)
@@ -83,9 +88,8 @@ class NetTrainer:
             predicted = outputs.max(1)[1]
             predictions.extend(predicted.data.numpy())
             correct_targets.extend(labels.data.numpy())
-            self.writer.add_scalar(label+'/loss', loss, epoch * size + i)
+            self.writer.add_scalar(label+'/loss', loss, epoch * (100 if testing else 316) + i)
             running_loss += loss.data[0]
-
         print("\t• "+label+" Loss (avg)", running_loss / len(loader))
         accuracy = accuracy_score(correct_targets, predictions)
         self.writer.add_scalar(label + '/accuracy', (accuracy * 100), epoch)
