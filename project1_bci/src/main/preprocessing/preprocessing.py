@@ -22,9 +22,10 @@ class Preprocess:
         - train_inputs: preprocessed data for training
         - test_inputs: preprocessed data for testing
     """
-    def transform(self, train_inputs, test_inputs, train_targets, test_targets):
+    def transform(self, train_inputs, test_inputs, train_targets, test_targets, to_filter):
         train_inputs, test_inputs = self.__normalize(train_inputs, test_inputs)
-        train_inputs, test_inputs = self.__filter(train_inputs, test_inputs, train_targets, test_targets)
+        if to_filter:
+            train_inputs, test_inputs = self.__filter(train_inputs, test_inputs, train_targets, test_targets)
         return train_inputs, test_inputs
 
 

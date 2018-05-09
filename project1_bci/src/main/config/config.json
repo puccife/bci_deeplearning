@@ -1,5 +1,5 @@
 {
-  "model": "CNN",
+  "model": "CN",
   "epochs": 300,
   "batch_size": 30,
   "weight_decay": 0.001

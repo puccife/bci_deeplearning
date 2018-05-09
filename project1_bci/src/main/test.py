@@ -14,7 +14,7 @@ def main(model, epochs, batch_size, weight_decay):
     train_inputs, train_targets = bci.load(root=DATA_PATH, one_khz=False)
     test_inputs, test_targets = bci.load(root=DATA_PATH, train=False, one_khz=False)
 
-    train_inputs, test_inputs = Preprocess().transform(train_inputs, test_inputs, train_targets, test_targets)
+    train_inputs, test_inputs = Preprocess().transform(train_inputs, test_inputs, train_targets, test_targets, to_filter=model!='CONV2D')
 
     # Datasets
     train_dataset = dt.TensorDataset(train_inputs, train_targets)
@@ -28,7 +28,7 @@ def main(model, epochs, batch_size, weight_decay):
 
     t = NetTrainer(epochs, batch_size, weight_decay, model)
     t.train(train_loader, test_loader)
-    t.create_graph()
+    #t.create_graph()
     return 0
 
 if __name__ == '__main__':
