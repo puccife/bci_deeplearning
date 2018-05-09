@@ -1,5 +1,4 @@
 import numpy as np
-from eegtools import spatfilt
 from sklearn import base
 from scipy import signal
 
@@ -19,34 +18,6 @@ def whitening_transform(cov_matrix, cut_off=1e-15):
                                                  eigen_values,
                                                  np.inf) ** -.5),
                                 eigenvectors.T])
-
-
-
-def outer_n(n):
-    '''
-    Return a list with indices from both ends. Used for CSP.
-
-    Parameters
-    ----------
-    n : int
-      The number of indices to select.
-
-    Returns
-    -------
-    out : array
-      Contains the indices picked from both ends.
-
-    See also
-    --------
-    csp : common spatial patterns algorithm.
-
-    Examples
-    --------
-    >>> outer_n(6)
-    array([ 0,  1,  2, -3, -2, -1])
-
-    '''
-    return np.roll(np.arange(n) - int(n / 2), int(n / 2))
 
 
 def csp(cov_first_class, cov_second_class, num_of_filters):
@@ -69,7 +40,7 @@ def csp(cov_first_class, cov_second_class, num_of_filters):
 
     # selecting the indices of the wanted filters from begin and the end of the rows
     # for num_filters = 4 --> indices [0,1,-2,-1]
-    indices = np.roll(np.arange(num_of_filters - half_num_filters), half_num_filters)
+    indices = np.roll(np.arange(num_of_filters) - half_num_filters, half_num_filters)
 
     # returning the selected filters extracted from the full csp matrix
     return csp_matrix_full[indices]
