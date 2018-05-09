@@ -77,9 +77,8 @@ class NetTrainer:
 
         for i, (inputs, labels) in enumerate(loader):
             inputs = Variable(inputs.float())
-            labels = Variable(labels)
-
             correct_targets.extend(labels)
+            labels = Variable(labels)
             outputs = net(inputs)
             loss = self.criterion(outputs, labels)
             predicted = outputs.max(1)[1]
