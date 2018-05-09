@@ -48,7 +48,7 @@ def csp(cov_first_class, cov_second_class, num_of_filters):
 #########################
 
 
-def apply_csp(X, y, filters=8):
+def apply_csp(X, y, on, filters=8):
     class_covs = []
     # calculate per-class covariance
     for ci in np.unique(y):
@@ -60,7 +60,7 @@ def apply_csp(X, y, filters=8):
     # calculate CSP spatial filters, the third argument is the number of filters to extract
     W = csp(class_covs[0], class_covs[1], filters)
     print("projection on the spatial filter started!")
-    projection = np.asarray([np.dot(W, trial) for trial in X])
+    projection = np.asarray([np.dot(W, trial) for trial in on])
     print("applied csp")
     return projection
 
