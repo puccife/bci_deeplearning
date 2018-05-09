@@ -77,12 +77,12 @@ class NetTrainer:
 
         for i, (inputs, labels) in enumerate(loader):
             inputs = Variable(inputs.float())
-            correct_targets.extend(labels)
             labels = Variable(labels)
             outputs = net(inputs)
             loss = self.criterion(outputs, labels)
             predicted = outputs.max(1)[1]
-            predictions.extend(predicted)
+            predictions.extend(predicted.numpy())
+            correct_targets.extend(labels.numpy())
             self.writer.add_scalar(label+'/loss', loss, epoch * size + i)
             running_loss += loss.data[0]
 
