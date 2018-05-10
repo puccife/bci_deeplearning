@@ -10,7 +10,7 @@ from .nets.deepcnn import TheNet
 from .nets.lstm import LSTM
 from .baselines.logistic import LogisticRegression
 
-from visualization.graphviz import GraphViz
+# from visualization.graphviz import GraphViz
 
 from sklearn.metrics import accuracy_score
 
@@ -35,8 +35,13 @@ class NetTrainer:
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         elif model == 'CONV2D':
             self.net = TheNet()
+<<<<<<< HEAD
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay, lr=0.005)
             self.lr_sched = StepLR(self.optimizer, step_size=110, gamma=0.5)
+=======
+            self.optimizer = optim.Adam(self.net.parameters(), weight_decay=self.weight_decay, lr=0.005)
+            self.scheduler = StepLR(self.optimizer, step_size=15, gamma=0.5)
+>>>>>>> fd7c483d653926198b5145cb2dca14bf58387e33
             if pretrained:
                 self.net.load_state_dict(torch.load('../../model/CONV2D_best.pkl'))
         else:
@@ -56,7 +61,11 @@ class NetTrainer:
         # Training
         for epoch in range(self.num_epochs):  # loop over the dataset multiple times
             print("\n ------ Epoch n°", epoch + 1, "/", self.num_epochs, "------")
+<<<<<<< HEAD
             self.lr_sched.step()
+=======
+            self.scheduler.step()
+>>>>>>> fd7c483d653926198b5145cb2dca14bf58387e33
             running_loss = 0.0
             for i, (inputs, labels) in enumerate(train_loader):
                 inputs = Variable(inputs.float())
