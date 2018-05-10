@@ -10,7 +10,7 @@ from .nets.deepcnn import TheNet
 from .nets.lstm import LSTM
 from .baselines.logistic import LogisticRegression
 
-from visualization.graphviz import GraphViz
+# from visualization.graphviz import GraphViz
 
 from torchvision.models.resnet import BasicBlock, model_urls, model_zoo
 from torchvision import models
@@ -40,8 +40,8 @@ class NetTrainer:
             # self.net = Res(BasicBlock, [2, 2])
             # self.optimizer = optim.Adamax(self.net.parameters(), lr=0.00001)
             self.net = TheNet()
-            self.optimizer = optim.Adam(self.net.parameters(), weight_decay=self.weight_decay, lr=0.001)
-            self.scheduler = StepLR(self.optimizer, step_size=35, gamma=0.7)
+            self.optimizer = optim.Adam(self.net.parameters(), weight_decay=self.weight_decay, lr=0.005)
+            self.scheduler = StepLR(self.optimizer, step_size=15, gamma=0.5)
             if pretrained:
                 self.net.load_state_dict(torch.load('../../model/CONV2D_best.pkl'))
         else:
@@ -61,7 +61,7 @@ class NetTrainer:
         # Training
         for epoch in range(self.num_epochs):  # loop over the dataset multiple times
             print("\n ------ Epoch n°", epoch + 1, "/", self.num_epochs, "------")
-            #self.scheduler.step()
+            self.scheduler.step()
             running_loss = 0.0
             for i, (inputs, labels) in enumerate(train_loader):
                 inputs = Variable(inputs.float())

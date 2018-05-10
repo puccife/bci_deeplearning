@@ -8,19 +8,19 @@ class TheNet(nn.Module):
 
         # Layer 1
         self.conv1 = nn.Conv2d(28, 14, (1, 10), padding=(0))
-        self.batchnorm1 = nn.BatchNorm2d(14, False)
+        self.batchnorm1 = nn.BatchNorm2d(14)
 
         # Layer 2
         # Layer 2
         self.padding1 = nn.ZeroPad2d((10, 10, 0, 0))
         self.conv2 = nn.Conv2d(14, 4, (1, 3))
-        self.batchnorm2 = nn.BatchNorm2d(4, False)
+        self.batchnorm2 = nn.BatchNorm2d(4)
         self.pooling2 = nn.MaxPool2d(1, 4)
 
         # Layer 2
         self.padding3 = nn.ZeroPad2d((4, 4, 0, 0))
         self.conv3 = nn.Conv2d(4, 4, (1, 3))
-        self.batchnorm3 = nn.BatchNorm2d(4, False)
+        self.batchnorm3 = nn.BatchNorm2d(4)
         self.pooling3 = nn.MaxPool2d(1, 4)
 
         # FC Layer
@@ -30,7 +30,15 @@ class TheNet(nn.Module):
 
     def init_weights(self, m):
         if type(m) == nn.Conv2d:
-            torch.nn.init.kaiming_normal_(m.weight)
+            torch.nn.init.normal(m.weight, 0, 0.01)
+            if m.bias is not None:
+                nn.init.constant(m.bias, 0)
+        elif isinstance(m, nn.BatchNorm2d):
+            nn.init.constant(m.weight, 1)
+            nn.init.constant(m.bias, 0)
+        elif isinstance(m, nn.Linear):
+            nn.init.normal(m.weight, 0, 0.01)
+            nn.init.constant(m.bias, 0)
 
     def forward(self, x):
         # Layer 1
