@@ -35,13 +35,10 @@ class NetTrainer:
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         elif model == 'CONV2D':
             self.net = TheNet()
-<<<<<<< HEAD
-            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay, lr=0.005)
-            self.lr_sched = StepLR(self.optimizer, step_size=110, gamma=0.5)
-=======
-            self.optimizer = optim.Adam(self.net.parameters(), weight_decay=self.weight_decay, lr=0.005)
-            self.scheduler = StepLR(self.optimizer, step_size=15, gamma=0.5)
->>>>>>> fd7c483d653926198b5145cb2dca14bf58387e33
+            self.optimizer = optim.Adam(self.net.parameters(), weight_decay=self.weight_decay, lr=0.001)
+            self.scheduler = StepLR(self.optimizer, step_size=135, gamma=0.1)
+            if pretrained:
+                self.net.load_state_dict(torch.load('../../model/CONV2D_best.pkl'))
             if pretrained:
                 self.net.load_state_dict(torch.load('../../model/CONV2D_best.pkl'))
         else:
@@ -61,11 +58,7 @@ class NetTrainer:
         # Training
         for epoch in range(self.num_epochs):  # loop over the dataset multiple times
             print("\n ------ Epoch n°", epoch + 1, "/", self.num_epochs, "------")
-<<<<<<< HEAD
-            self.lr_sched.step()
-=======
             self.scheduler.step()
->>>>>>> fd7c483d653926198b5145cb2dca14bf58387e33
             running_loss = 0.0
             for i, (inputs, labels) in enumerate(train_loader):
                 inputs = Variable(inputs.float())
@@ -75,7 +68,7 @@ class NetTrainer:
                 # forward + backward + optimize
                 outputs = self.net(inputs)
                 loss = self.criterion(outputs, labels)
-                loss.backward(retain_graph=True)
+                loss.backward()
                 self.optimizer.step()
                 running_loss += loss.data[0]
             # Evaluating on training dataset
@@ -102,7 +95,7 @@ class NetTrainer:
             predicted = outputs.max(1)[1]
             predictions.extend(predicted.data.numpy())
             correct_targets.extend(labels.data.numpy())
-            self.writer.add_scalar(label+'/loss', loss, epoch * (100 if testing else 316) + i)
+            self.writer.add_scalar(label+'/loss', loss, epoch * len(loader) + i)
             running_loss += loss.data[0]
         print("\t• "+label+" Loss (avg)", running_loss / len(loader))
         accuracy = accuracy_score(correct_targets, predictions)
@@ -116,7 +109,7 @@ class NetTrainer:
                 torch.save(net.state_dict(), '../../model/'+self.model+'.pkl')
             return best_accuracy, running_loss / len(loader)
 
-    def create_graph(self):
-        gv = GraphViz()
-        gv.create_graph(self.model, self.graph_output, params=self.params)
-        print("Structure saved successfully.")
+    # def create_graph(self):
+    #     gv = GraphViz()
+    #     gv.create_graph(self.model, self.graph_output, params=self.params)
+    #     print("Structure saved successfully.")

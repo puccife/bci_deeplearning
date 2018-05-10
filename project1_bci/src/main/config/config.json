@@ -1,12 +1,6 @@
 {
   "model": "CONV2D",
-<<<<<<< HEAD
   "epochs": 300,
-  "batch_size": 100,
-  "weight_decay": 0.002
-=======
-  "epochs": 200,
-  "batch_size": 100,
-  "weight_decay": 0.005
->>>>>>> fd7c483d653926198b5145cb2dca14bf58387e33
+  "batch_size": 100 ,
+  "weight_decay": 0.01
 }
