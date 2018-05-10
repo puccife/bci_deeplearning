@@ -6,7 +6,7 @@ from torchvision import models
 import numpy as np
 
 from .nets.cnn import CNN
-from .nets.cnn2d_nofilter import TheNet
+from .nets.ensemble import TheNet
 from .nets.lstm import LSTM
 from .baselines.logistic import LogisticRegression
 
@@ -35,7 +35,7 @@ class NetTrainer:
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         elif model == 'CONV2D':
             self.net = TheNet()
-            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=0.0, lr=0.001)
+            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)#, lr=0.005)
         else:
             raise RuntimeError('No model found')
 
