@@ -1,6 +1,6 @@
 {
-  "model": "CN",
+  "model": "CONV2D",
   "epochs": 300,
-  "batch_size": 30,
-  "weight_decay": 0.001
+  "batch_size": 40,
+  "weight_decay": 0.003
 }

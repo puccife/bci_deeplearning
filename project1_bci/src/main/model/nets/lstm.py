@@ -7,7 +7,7 @@ class LSTM(nn.Module):
 
     def __init__(self, init_weights=True):
         super(LSTM, self).__init__()
-        self.dlstm = nn.LSTM(8, 64, batch_first=True)
+        self.dlstm = nn.LSTM(4, 64, batch_first=True)
         self.fc = nn.Linear(64, 2)
 
     def forward(self, x):

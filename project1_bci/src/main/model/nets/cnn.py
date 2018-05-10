@@ -13,20 +13,34 @@ class CNN(nn.Module):
             nn.Dropout2d(0.9),
             nn.MaxPool1d(2))
         self.layer2 = nn.Sequential(
-            nn.Conv1d(16, 64, kernel_size=4, padding=padding),
-            nn.BatchNorm1d(64),
+            nn.Conv1d(16, 32, kernel_size=kernel_size, padding=padding),
+            nn.BatchNorm1d(32),
             nn.LeakyReLU(),
             nn.Dropout2d(0.9),
             nn.MaxPool1d(2)
             )
         self.layer3 = nn.Sequential(
-            nn.Conv1d(64, 256, kernel_size=4, padding=padding),
-            nn.BatchNorm1d(256),
+            nn.Conv1d(32, 64, kernel_size=kernel_size, padding=padding),
+            nn.BatchNorm1d(64),
             nn.LeakyReLU(),
             nn.Dropout2d(0.9),
             nn.MaxPool1d(2)
             )
-        self.fc = nn.Linear(256, 2)
+        self.layer4 = nn.Sequential(
+            nn.Conv1d(64, 128, kernel_size=kernel_size, padding=padding),
+            nn.BatchNorm1d(128),
+            nn.LeakyReLU(),
+            nn.Dropout2d(0.9),
+            nn.MaxPool1d(2)
+        )
+        self.layer5 = nn.Sequential(
+            nn.Conv1d(128, 256, kernel_size=kernel_size, padding=padding),
+            nn.BatchNorm1d(256),
+            nn.LeakyReLU(),
+            nn.Dropout2d(0.9),
+            nn.MaxPool1d(2)
+        )
+        self.fc = nn.Linear(128, 2)
 
         if init_weights:
             self._initialize_weights()
@@ -58,6 +72,8 @@ class CNN(nn.Module):
         print('layer 2') if debugging else ...
         print(x.shape) if debugging else ...
         x = self.layer3(x)
+        x = self.layer4(x)
+        #x = self.layer5(x)
         print(x.shape) if debugging else ...
         x = x.view(x.size(0), -1)
         print(x.shape) if debugging else ...

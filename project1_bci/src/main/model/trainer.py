@@ -1,16 +1,19 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.optim.lr_scheduler import StepLR, MultiStepLR
 from torch.autograd import Variable
-from torchvision import models
-import numpy as np
 
 from .nets.cnn import CNN
-from .nets.cnn2d_nofilter import TheNet
+from .nets.res import Res
+from .nets.deepcnn import TheNet
 from .nets.lstm import LSTM
 from .baselines.logistic import LogisticRegression
 
 from visualization.graphviz import GraphViz
+
+from torchvision.models.resnet import BasicBlock, model_urls, model_zoo
+from torchvision import models
 
 from sklearn.metrics import accuracy_score
 
@@ -18,7 +21,7 @@ from tensorboardX import SummaryWriter
 
 class NetTrainer:
 
-    def __init__(self, num_epochs, batch_size, weight_decay, model='CNN'):
+    def __init__(self, num_epochs, batch_size, weight_decay, model='CNN', pretrained=False):
         self.criterion = nn.CrossEntropyLoss()
         self.num_epochs = num_epochs
         self.batch_size = batch_size
@@ -26,7 +29,7 @@ class NetTrainer:
         self.model = model
         if model == 'CNN':
             self.net = CNN()
-            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
+            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=0)
         elif model == 'LSTM':
             self.net = LSTM()
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
@@ -34,8 +37,13 @@ class NetTrainer:
             self.net = LogisticRegression()
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         elif model == 'CONV2D':
+            # self.net = Res(BasicBlock, [2, 2])
+            # self.optimizer = optim.Adamax(self.net.parameters(), lr=0.00001)
             self.net = TheNet()
-            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=0.0, lr=0.001)
+            self.optimizer = optim.Adam(self.net.parameters(), weight_decay=self.weight_decay, lr=0.001)
+            self.scheduler = StepLR(self.optimizer, step_size=35, gamma=0.7)
+            if pretrained:
+                self.net.load_state_dict(torch.load('../../model/CONV2D_best.pkl'))
         else:
             raise RuntimeError('No model found')
 
@@ -53,6 +61,7 @@ class NetTrainer:
         # Training
         for epoch in range(self.num_epochs):  # loop over the dataset multiple times
             print("\n ------ Epoch n°", epoch + 1, "/", self.num_epochs, "------")
+            #self.scheduler.step()
             running_loss = 0.0
             for i, (inputs, labels) in enumerate(train_loader):
                 inputs = Variable(inputs.float())
@@ -68,7 +77,8 @@ class NetTrainer:
             # Evaluating on training dataset
             self.__evaluate("\t\t- Train", self.net, train_loader, epoch)
             # Returning best test accuracy
-            best_accuracy = self.__evaluate("\t\t- Test", self.net, test_loader, epoch, testing=True, best_accuracy=best_accuracy)
+            best_accuracy, val_loss = self.__evaluate("\t\t- Test", self.net, test_loader, epoch, testing=True, best_accuracy=best_accuracy)
+
         print("Best registered accuracy on test set = ", best_accuracy)
         self.graph_output = outputs
         self.params = dict(self.net.named_parameters())
@@ -100,7 +110,7 @@ class NetTrainer:
             if best_accuracy <= accuracy:
                 best_accuracy = accuracy
                 torch.save(net.state_dict(), '../../model/'+self.model+'.pkl')
-            return best_accuracy
+            return best_accuracy, running_loss / len(loader)
 
     def create_graph(self):
         gv = GraphViz()

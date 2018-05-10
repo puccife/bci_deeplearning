@@ -42,7 +42,7 @@ def csp(cov_first_class, cov_second_class, num_of_filters):
     return csp_matrix_full[indices]
 
 
-def apply_csp(X, y, on, filters=8):
+def apply_csp(X, y, on, filters=4):
     cov_matrices_list = []
     # calculate per-class covariance
     for class_ in np.unique(y):

@@ -6,6 +6,10 @@ import utils.hyperparams as hyperparams
 from preprocessing.preprocessing import Preprocess
 from model.trainer import NetTrainer
 
+import torch
+from torchvision.transforms import *
+
+
 DATA_PATH = '../../data_bci'
 
 def main(model, epochs, batch_size, weight_decay):

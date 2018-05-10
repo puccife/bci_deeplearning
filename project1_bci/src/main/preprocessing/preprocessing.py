@@ -84,11 +84,11 @@ class Preprocess:
         train_inputs, test_inputs = ButterFilter().apply_filter(train_inputs, test_inputs)
 
         # projecting on spacial filters
+        test_inputs = apply_csp(train_inputs, train_targets, on=test_inputs)
+        test_inputs = apply_channel_variance(test_inputs)
+
         train_inputs = apply_csp(train_inputs, train_targets, on=train_inputs)
         train_inputs = apply_channel_variance(train_inputs)
-
-        test_inputs = apply_csp(test_inputs, test_targets, on=test_inputs)
-        test_inputs = apply_channel_variance(test_inputs)
 
         train_inputs = torch.from_numpy(train_inputs)
         test_inputs = torch.from_numpy(test_inputs)
