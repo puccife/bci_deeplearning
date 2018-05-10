@@ -7,30 +7,36 @@ class TheNet(nn.Module):
         super(TheNet, self).__init__()
 
         # Layer 1
-        self.conv1 = nn.Conv2d(28, 14, (1, 10), padding=(0))
-        self.batchnorm1 = nn.BatchNorm2d(14, False)
+        self.conv1 = nn.Conv2d(28, 32, (1, 10), padding=(0))
+        self.batchnorm1 = nn.BatchNorm2d(32, False)
 
         # Layer 2
         # Layer 2
         self.padding1 = nn.ZeroPad2d((10, 10, 0, 0))
-        self.conv2 = nn.Conv2d(14, 4, (1, 3))
-        self.batchnorm2 = nn.BatchNorm2d(4, False)
-        self.pooling2 = nn.MaxPool2d(1, 4)
+        self.conv2 = nn.Conv2d(32, 64, (1, 3))
+        self.batchnorm2 = nn.BatchNorm2d(64, False)
+        self.pooling2 = nn.MaxPool2d(1, 10)
 
         # Layer 2
         self.padding3 = nn.ZeroPad2d((4, 4, 0, 0))
-        self.conv3 = nn.Conv2d(4, 4, (1, 3))
-        self.batchnorm3 = nn.BatchNorm2d(4, False)
+        self.conv3 = nn.Conv2d(64, 128, (1, 3))
+        self.batchnorm3 = nn.BatchNorm2d(128, False)
         self.pooling3 = nn.MaxPool2d(1, 4)
 
+        # Layer 2
+        self.padding4 = nn.ZeroPad2d((4, 4, 0, 0))
+        self.conv4 = nn.Conv2d(128, 256, (1, 3))
+        self.batchnorm4 = nn.BatchNorm2d(256, False)
+        self.pooling4 = nn.MaxPool2d(1, 4)
+
         # FC Layer
-        self.fc1 = nn.Linear(24, 2)
+        self.fc1 = nn.Linear(768, 2)
 
         self.apply(self.init_weights)
 
     def init_weights(self, m):
         if type(m) == nn.Conv2d:
-            torch.nn.init.kaiming_normal_(m.weight)
+            torch.nn.init.xavier_uniform_(m.weight)
 
     def forward(self, x):
         # Layer 1
@@ -39,7 +45,7 @@ class TheNet(nn.Module):
         print(x.shape)
         x = F.elu(self.conv1(x))
         x = self.batchnorm1(x)
-        x = F.dropout(x, 0.70)
+        x = F.dropout(x, 0.50)
         print(x.shape)
 
         # print(x.shape)
@@ -47,7 +53,7 @@ class TheNet(nn.Module):
         x = self.padding1(x)
         x = F.elu(self.conv2(x))
         x = self.batchnorm2(x)
-        x = F.dropout(x, 0.70)
+        x = F.dropout(x, 0.50)
         print(x.shape)
         x = self.pooling2(x)
 
@@ -56,11 +62,18 @@ class TheNet(nn.Module):
         x = self.padding3(x)
         x = F.elu(self.conv3(x))
         x = self.batchnorm3(x)
-        x = F.dropout(x, 0.70)
+        x = F.dropout(x, 0.50)
         x = self.pooling3(x)
+
+        x = self.padding4(x)
+        x = F.elu(self.conv4(x))
+        x = self.batchnorm4(x)
+        x = F.dropout(x, 0.50)
+        x = self.pooling4(x)
+
         # print(x.shape)
 
-        x = x.view(x.shape[0], -1, 24)
+        x = x.view(x.shape[0], -1, 768)
         x = self.fc1(x)
         x = x.squeeze(1)
         return x

@@ -12,9 +12,6 @@ from .baselines.logistic import LogisticRegression
 
 from visualization.graphviz import GraphViz
 
-from torchvision.models.resnet import BasicBlock, model_urls, model_zoo
-from torchvision import models
-
 from sklearn.metrics import accuracy_score
 
 from tensorboardX import SummaryWriter
@@ -37,11 +34,9 @@ class NetTrainer:
             self.net = LogisticRegression()
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         elif model == 'CONV2D':
-            # self.net = Res(BasicBlock, [2, 2])
-            # self.optimizer = optim.Adamax(self.net.parameters(), lr=0.00001)
             self.net = TheNet()
-            self.optimizer = optim.Adam(self.net.parameters(), weight_decay=self.weight_decay, lr=0.001)
-            self.scheduler = StepLR(self.optimizer, step_size=35, gamma=0.7)
+            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay, lr=0.005)
+            self.lr_sched = StepLR(self.optimizer, step_size=110, gamma=0.5)
             if pretrained:
                 self.net.load_state_dict(torch.load('../../model/CONV2D_best.pkl'))
         else:
@@ -61,7 +56,7 @@ class NetTrainer:
         # Training
         for epoch in range(self.num_epochs):  # loop over the dataset multiple times
             print("\n ------ Epoch n°", epoch + 1, "/", self.num_epochs, "------")
-            #self.scheduler.step()
+            self.lr_sched.step()
             running_loss = 0.0
             for i, (inputs, labels) in enumerate(train_loader):
                 inputs = Variable(inputs.float())
