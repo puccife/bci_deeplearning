@@ -36,9 +36,7 @@ class NetTrainer:
         elif model == 'CONV2D':
             self.net = TheNet()
             self.optimizer = optim.Adam(self.net.parameters(), weight_decay=self.weight_decay, lr=0.001)
-            self.scheduler = StepLR(self.optimizer, step_size=135, gamma=0.1)
-            if pretrained:
-                self.net.load_state_dict(torch.load('../../model/CONV2D_best.pkl'))
+            self.scheduler = MultiStepLR(self.optimizer, milestones=[135, 145], gamma=0.1)
             if pretrained:
                 self.net.load_state_dict(torch.load('../../model/CONV2D_best.pkl'))
         else:
@@ -95,7 +93,7 @@ class NetTrainer:
             predicted = outputs.max(1)[1]
             predictions.extend(predicted.data.numpy())
             correct_targets.extend(labels.data.numpy())
-            self.writer.add_scalar(label+'/loss', loss, epoch * len(loader) + i)
+            self.writer.add_scalar(label+'/loss', loss, epoch * (100 if testing else 316) + i)
             running_loss += loss.data[0]
         print("\t• "+label+" Loss (avg)", running_loss / len(loader))
         accuracy = accuracy_score(correct_targets, predictions)

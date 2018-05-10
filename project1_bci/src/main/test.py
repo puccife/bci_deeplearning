@@ -29,7 +29,6 @@ def main(model, epochs, batch_size, weight_decay):
     test_loader = dt.DataLoader(dataset=test_dataset,
                                 batch_size=batch_size,
                                 shuffle=True)
-
     t = NetTrainer(epochs, batch_size, weight_decay, model)
     t.train(train_loader, test_loader)
     #t.create_graph()
