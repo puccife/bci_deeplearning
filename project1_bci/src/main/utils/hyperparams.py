@@ -14,12 +14,11 @@ def load_config():
         config = json.load(f)
 
     # retrieve hyper params
-    model = config['model']
     epochs = config['epochs']
     batch_size = config['batch_size']
     weight_decay = config['weight_decay']
 
-    return model, epochs, batch_size, weight_decay
+    return epochs, batch_size, weight_decay
 
 
 

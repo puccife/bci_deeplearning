@@ -1,5 +1,4 @@
 {
-  "model": "CONV2D",
   "epochs": 300,
   "batch_size": 100 ,
   "weight_decay": 0.00

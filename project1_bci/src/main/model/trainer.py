@@ -22,6 +22,7 @@ class NetTrainer:
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.weight_decay = weight_decay
+        self.pretrained = pretrained
         self.model = model
         if model == 'CNN':
             self.net = CNN()
@@ -50,7 +51,6 @@ class NetTrainer:
         }
         #self.writer.add_text('model', str(args))
         #summary(self.net, (28, 50))
-        # Setting optimizer
         best_accuracy = 0
         best_loss = 333
         # Training
@@ -59,25 +59,26 @@ class NetTrainer:
             if self.model == 'TS':
                 self.scheduler.step()
             running_loss = 0.0
-            for i, (inputs, labels) in enumerate(train_loader):
-                inputs = Variable(inputs.float())
-                labels = Variable(labels)
-                # zero the parameter gradients
-                self.optimizer.zero_grad()
-                # forward + backward + optimize
-                outputs = self.net(inputs)
-                loss = self.criterion(outputs, labels)
-                loss.backward()
-                self.optimizer.step()
-                running_loss += loss
+            if not self.pretrained:
+                for i, (inputs, labels) in enumerate(train_loader):
+                    inputs = Variable(inputs.float())
+                    labels = Variable(labels)
+                    # zero the parameter gradients
+                    self.optimizer.zero_grad()
+                    # forward + backward + optimize
+                    outputs = self.net(inputs)
+                    loss = self.criterion(outputs, labels)
+                    loss.backward()
+                    self.optimizer.step()
+                    running_loss += loss
             # Evaluating on training dataset
             self.__evaluate("\t\t- Train", self.net, train_loader, epoch)
             # Returning best test accuracy
             best_accuracy, best_loss = self.__evaluate("\t\t- Test", self.net, test_loader, epoch, testing=True, best_accuracy=best_accuracy, best_loss=best_loss)
-
-        #print("Best registered accuracy on test set = ", best_accuracy)
-        self.graph_output = outputs
-        self.params = dict(self.net.named_parameters())
+            if self.pretrained:
+                break
+        #self.graph_output = outputs
+        #self.params = dict(self.net.named_parameters())
         return best_accuracy, best_loss
 
     # Evaluation

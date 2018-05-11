@@ -12,7 +12,7 @@ from torchvision.transforms import *
 
 DATA_PATH = '../../data_bci'
 
-def main(model, epochs, batch_size, weight_decay):
+def main(epochs, batch_size, weight_decay):
 
     print("==================================")
     print("MODEL\tval_accuracy\tval_loss")
@@ -38,14 +38,12 @@ def main(model, epochs, batch_size, weight_decay):
     return 0
 
 if __name__ == '__main__':
-    model, \
     epochs, \
     batch_size, \
     weight_decay = hyperparams.load_config()
 
     parser = argparse.ArgumentParser(description='Run deep learning model for BCI data classification.')
-    parser.add_argument("-m", "--model", help="Model for training", type=str, default=model)
     parser.add_argument("-e", "--epochs", help="Number of training epochs", type=int, default=epochs)
     parser.add_argument("-b", "--batch_size", help="Batch size for training", type=int, default=batch_size)
     args = parser.parse_args()
-    main(args.model, args.epochs, args.batch_size, weight_decay)
+    main(args.epochs, args.batch_size, weight_decay)
