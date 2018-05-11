@@ -4,21 +4,20 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR, MultiStepLR
 from torch.autograd import Variable
 
+from sklearn.metrics import accuracy_score
+
 from .nets.cnn import CNN
-from .nets.res import Res
-from .nets.deepcnn import TheNet
+from .nets.tsnet import TSnet
 from .nets.lstm import LSTM
 from .baselines.logistic import LogisticRegression
 
+# from torchsummary import summary
 # from visualization.graphviz import GraphViz
-
-from sklearn.metrics import accuracy_score
-
-from tensorboardX import SummaryWriter
+# from tensorboardX import SummaryWriter
 
 class NetTrainer:
 
-    def __init__(self, num_epochs, batch_size, weight_decay, model='CNN', pretrained=False):
+    def __init__(self, num_epochs, batch_size, weight_decay, model='TS', pretrained=False):
         self.criterion = nn.CrossEntropyLoss()
         self.num_epochs = num_epochs
         self.batch_size = batch_size
@@ -33,30 +32,32 @@ class NetTrainer:
         elif model == 'LOG':
             self.net = LogisticRegression()
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
-        elif model == 'CONV2D':
-            self.net = TheNet()
+        elif model == 'TS':
+            self.net = TSnet()
             self.optimizer = optim.Adam(self.net.parameters(), weight_decay=self.weight_decay, lr=0.001)
             self.scheduler = MultiStepLR(self.optimizer, milestones=[135, 145], gamma=0.1)
             if pretrained:
-                self.net.load_state_dict(torch.load('../../model/CONV2D_best.pkl'))
+                self.net.load_state_dict(torch.load('../../model/tsnet_best.pkl'))
         else:
             raise RuntimeError('No model found')
 
     def train(self, train_loader, test_loader):
-        self.writer=SummaryWriter()
+        #self.writer=SummaryWriter()
         args = {
             'model':self.model,
             'batchsize':self.batch_size,
             'epochs':self.num_epochs,
         }
-        self.writer.add_text('model', str(args))
-
+        #self.writer.add_text('model', str(args))
+        #summary(self.net, (28, 50))
         # Setting optimizer
         best_accuracy = 0
+        best_loss = 333
         # Training
         for epoch in range(self.num_epochs):  # loop over the dataset multiple times
-            print("\n ------ Epoch n°", epoch + 1, "/", self.num_epochs, "------")
-            self.scheduler.step()
+            #print("\n ------ Epoch n°", epoch + 1, "/", self.num_epochs, "------")
+            if self.model == 'TS':
+                self.scheduler.step()
             running_loss = 0.0
             for i, (inputs, labels) in enumerate(train_loader):
                 inputs = Variable(inputs.float())
@@ -68,18 +69,19 @@ class NetTrainer:
                 loss = self.criterion(outputs, labels)
                 loss.backward()
                 self.optimizer.step()
-                running_loss += loss.data[0]
+                running_loss += loss
             # Evaluating on training dataset
             self.__evaluate("\t\t- Train", self.net, train_loader, epoch)
             # Returning best test accuracy
-            best_accuracy, val_loss = self.__evaluate("\t\t- Test", self.net, test_loader, epoch, testing=True, best_accuracy=best_accuracy)
+            best_accuracy, best_loss = self.__evaluate("\t\t- Test", self.net, test_loader, epoch, testing=True, best_accuracy=best_accuracy, best_loss=best_loss)
 
-        print("Best registered accuracy on test set = ", best_accuracy)
+        #print("Best registered accuracy on test set = ", best_accuracy)
         self.graph_output = outputs
         self.params = dict(self.net.named_parameters())
+        return best_accuracy, best_loss
 
     # Evaluation
-    def __evaluate(self, label, net, loader, epoch, testing=False, best_accuracy=0):
+    def __evaluate(self, label, net, loader, epoch, testing=False, best_accuracy=0, best_loss=333):
         # Test the Model
         net.eval()  # Change model to 'eval' mode (BN uses moving mean/var).
         running_loss = 0.0
@@ -93,21 +95,18 @@ class NetTrainer:
             predicted = outputs.max(1)[1]
             predictions.extend(predicted.data.numpy())
             correct_targets.extend(labels.data.numpy())
-            self.writer.add_scalar(label+'/loss', loss, epoch * (100 if testing else 316) + i)
-            running_loss += loss.data[0]
-        print("\t• "+label+" Loss (avg)", running_loss / len(loader))
+            #self.writer.add_scalar(label+'/loss', loss, epoch * (100 if testing else 316) + i)
+            running_loss += loss#.data[0]
+        avgloss = running_loss / len(loader)
+        #print("\t• "+label+" Loss (avg)", avgloss)
         accuracy = accuracy_score(correct_targets, predictions)
-        self.writer.add_scalar(label + '/accuracy', (accuracy * 100), epoch)
-        print(label, ' accuracy of the model : ', accuracy)
+        #self.writer.add_scalar(label + '/accuracy', (accuracy * 100), epoch)
+        #print(label, ' accuracy of the model : ', accuracy)
         # Save the Trained Model
-
         if testing:
+            if avgloss <= best_loss:
+                best_loss = avgloss
             if best_accuracy <= accuracy:
                 best_accuracy = accuracy
                 torch.save(net.state_dict(), '../../model/'+self.model+'.pkl')
-            return best_accuracy, running_loss / len(loader)
-
-    # def create_graph(self):
-    #     gv = GraphViz()
-    #     gv.create_graph(self.model, self.graph_output, params=self.params)
-    #     print("Structure saved successfully.")
+            return best_accuracy, best_loss

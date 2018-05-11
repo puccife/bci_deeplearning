@@ -2,9 +2,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
-class TheNet(nn.Module):
+class TSnet(nn.Module):
     def __init__(self):
-        super(TheNet, self).__init__()
+        super(TSnet, self).__init__()
         # Layer 1
         self.conv1 = nn.Conv2d(28, 14, (1, 10), padding=(0))
         self.batchnorm1 = nn.BatchNorm2d(14)

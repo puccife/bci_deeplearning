@@ -53,14 +53,11 @@ def apply_csp(X, y, on, filters=4):
     assert len(cov_matrices_list) == 2
     # calculate CSP spatial filters, the third argument is the number of filters to extract
     W = csp(cov_matrices_list[0], cov_matrices_list[1], filters)
-    print("projection on the spatial filter started!")
     projection = np.asarray([np.dot(W, trial) for trial in on])
-    print("applied csp")
     return projection
 
 
 def apply_channel_variance(X):
-    print("variance on channels started!")
     result = np.var(X, axis=2)
     return result
 
