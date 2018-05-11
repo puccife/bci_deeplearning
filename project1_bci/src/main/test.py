@@ -7,8 +7,11 @@ from preprocessing.preprocessing import Preprocess
 from model.trainer import NetTrainer
 
 import torch
-from torchvision.transforms import *
-
+try:
+    assert torch.__version__ == '0.4.0'
+except AssertionError as e:
+    e.args += ('Incompatible version of torch package','please use VERSION 0.4.0')
+    raise
 
 DATA_PATH = '../../data_bci'
 
