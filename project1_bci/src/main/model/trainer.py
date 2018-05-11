@@ -29,12 +29,6 @@ class NetTrainer:
         elif model == 'LSTM':
             self.net = LSTM()
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
-        elif model == 'LOG':
-            self.net = LogisticRegression(input_size=4)
-            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
-        elif model == 'RAW_LOG':
-            self.net = LogisticRegression(input_size=28*50)
-            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         elif model == 'TS':
             self.net = TSnet()
             self.optimizer = optim.Adam(self.net.parameters(), weight_decay=self.weight_decay, lr=0.001)
@@ -43,6 +37,14 @@ class NetTrainer:
                 self.net.load_state_dict(torch.load('../../model/tsnet_best.pkl'))
         else:
             raise RuntimeError('No model found')
+        '''
+            elif model == 'LOG':
+                self.net = LogisticRegression(input_size=4)
+                self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
+            elif model == 'RAW_LOG':
+                self.net = LogisticRegression(input_size=28*50)
+                self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
+            '''
 
     def train(self, train_loader, test_loader):
         #self.writer=SummaryWriter()
