@@ -30,7 +30,7 @@ class TheNet(nn.Module):
 
     def init_weights(self, m):
         if type(m) == nn.Conv2d:
-            torch.nn.init.xavier_normal_(m.weight)
+            torch.nn.init.xavier_normal(m.weight)
 
     def forward(self, x):
         # Layer 1

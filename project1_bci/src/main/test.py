@@ -12,13 +12,19 @@ from torchvision.transforms import *
 
 DATA_PATH = '../../data_bci'
 
-def main(model, epochs, batch_size, weight_decay):
 
+def main(model, epochs, batch_size, weight_decay):
 
     train_inputs, train_targets = bci.load(root=DATA_PATH, one_khz=False)
     test_inputs, test_targets = bci.load(root=DATA_PATH, train=False, one_khz=False)
 
-    train_inputs, test_inputs = Preprocess().transform(train_inputs, test_inputs, train_targets, test_targets, to_filter=model!='CONV2D')
+    train_inputs, test_inputs = Preprocess().transform(train_inputs, test_inputs, train_targets, test_targets,
+                                                       to_filter=model != 'CONV2D' and model != 'RAW_LOG')
+
+    if model == 'RAW_LOG':
+        # flatten the values of our inputs for the SVM
+        train_inputs = train_inputs.view((train_inputs.size()[0], -1))
+        test_inputs = test_inputs.view((test_inputs.size()[0], -1))
 
     # Datasets
     train_dataset = dt.TensorDataset(train_inputs, train_targets)

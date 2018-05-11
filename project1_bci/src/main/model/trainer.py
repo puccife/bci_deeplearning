@@ -31,12 +31,15 @@ class NetTrainer:
             self.net = LSTM()
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         elif model == 'LOG':
-            self.net = LogisticRegression()
+            self.net = LogisticRegression(input_size=4)
+            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
+        elif model == 'RAW_LOG':
+            self.net = LogisticRegression(input_size=28*50)
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         elif model == 'CONV2D':
             self.net = TheNet()
             self.optimizer = optim.Adam(self.net.parameters(), weight_decay=self.weight_decay, lr=0.001)
-            self.scheduler = StepLR(self.optimizer, step_size=135, gamma=0.1)
+            self.scheduler = StepLR(self.optimizer, step_size=60, gamma=0.5)
             if pretrained:
                 self.net.load_state_dict(torch.load('../../model/CONV2D_best.pkl'))
             if pretrained:
