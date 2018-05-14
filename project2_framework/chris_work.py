@@ -1,7 +1,7 @@
 import math
 import torch
 from torch import Tensor
-from project2_framework.loader import *
+from loader import *
 import numpy as np
 
 
@@ -211,14 +211,20 @@ def train(model, epochs, train_loader, test_loader, loss, lr=0.01):
 
         # validation
         epoch_val_losses = []
+        total = 0
+        correct = 0
         for x_batch, y_batch in test_loader.get_loader():
             for x, y in zip(x_batch, y_batch):
                 predicted = model.forward(x)
+                total+=1
+                if predicted.max(0)[1][0] == y.max(0)[1][0]:
+                    correct+=1
                 loss_value = loss.compute(predicted, y)
                 epoch_val_losses.append(loss_value)
 
         epoch_val_loss = sum(epoch_val_losses) / len(epoch_val_losses)
 
+        print("Accuracy: ", correct/total)
         print('Epoch [%d/%d], train Loss: %.6f, val loss: %.6f'% (epoch + 1, epochs,
                  epoch_train_loss, epoch_val_loss))
 
@@ -228,16 +234,8 @@ def train(model, epochs, train_loader, test_loader, loss, lr=0.01):
 
 ###################### run #######################
 
-inputs, targets = generate_data(1000, 2)
-
-targets = targets * 0.9 # for tanh range
-
-# TODO: splitting in train test, this is temporary
-train_inputs = inputs[:800]
-train_targets = targets[:800]
-
-test_inputs = inputs[800:]
-test_targets = targets[800:]
+train_inputs, train_targets = generate_data(1000, 2)
+test_inputs, test_targets = generate_data(1000, 2)
 
 batch_size = 10
 
@@ -249,8 +247,9 @@ test_loader = DataLoader(test_inputs, test_targets, batch_size)
 
 shape = train_inputs[0].shape
 
-layers = [Linear(input_dim=train_inputs[0].shape[0], output_dim=25), Relu(), Linear(input_dim=25, output_dim=25),
-          Relu(), Linear(input_dim=25, output_dim=2), Tanh()]
+layers = [Linear(input_dim=train_inputs[0].shape[0], output_dim=25), Relu(),
+          Linear(input_dim=25, output_dim=25), Relu(),
+          Linear(input_dim=25, output_dim=2), Tanh()]
 
 model = Sequential(layers)
 
