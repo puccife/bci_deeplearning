@@ -101,10 +101,3 @@ class Preprocess:
     """
     def __extract_channels(self, train_inputs, test_inputs):
         return train_inputs, test_inputs
-
-    def PCA(self, X, k=3):
-        # preprocess the data
-        X = X - torch.mean(X, 0).expand_as(X)
-        # svd
-        U, S, V = torch.svd(torch.t(X))
-        return torch.mm(X, U[:, :k])
