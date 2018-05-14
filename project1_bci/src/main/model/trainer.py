@@ -27,6 +27,9 @@ class NetTrainer:
         if model == 'CNN':
             self.net = CNN()
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=0)
+        elif model == 'LOG':
+            self.net = LogisticRegression(input_size=4)
+            self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
         elif model == 'LSTM':
             self.net = LSTM()
             self.optimizer = optim.Adamax(self.net.parameters(), weight_decay=self.weight_decay)
