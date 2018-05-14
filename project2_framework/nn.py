@@ -37,9 +37,9 @@ def get_data(train_input, train_target, start, mini_batch_size):
 
 def run_network(train_input,train_target,test_input,test_target):
 
-	eta = 0.001
-	mini_batch_size = 50
-	epochs = 10
+	eta = 0.01
+	mini_batch_size = 100
+	epochs = 1
 
 	criterion,optmizer = MSELoss(),SGD()
 	nn = Sequential(	Linear(2,25),
@@ -58,8 +58,7 @@ def run_network(train_input,train_target,test_input,test_target):
 	
 		print("Epoch = {}".format(e))
 		
-		loss_sum = 0
-		nn.init_Parameters()					
+		loss_sum = 0					
 
 		# at every epoch start from a different point
 		shuffle_indexes = torch.randperm(train_input.size(0))
@@ -91,7 +90,7 @@ def run_network(train_input,train_target,test_input,test_target):
 			backward_pass = criterion.backward_pass(nn.get_activations(),forward_pass,predicted_labels.float(),sample_target,nn.parameters()[0] )
 
 						
-			gradient = optmizer.compute_stoch_gradient(backward_pass,forward_pass )		
+			gradient = optmizer.compute_stoch_gradient(backward_pass,forward_pass,mini_batch_size)		
 			nn.update_parameters(eta,gradient)
 			
 		
