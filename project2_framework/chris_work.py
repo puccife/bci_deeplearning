@@ -254,7 +254,7 @@ layers = [Linear(input_dim=train_inputs[0].shape[0], output_dim=25), Relu(), Lin
 
 model = Sequential(layers)
 
-train(model=model, epochs=500, train_loader=train_loader, test_loader=test_loader, loss=LossMSE(), lr=0.001)
+train(model=model, epochs=500, train_loader=train_loader, test_loader=test_loader, loss=LossMSE(), lr=0.01)
 
 
 
