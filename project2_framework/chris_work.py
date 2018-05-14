@@ -24,9 +24,9 @@ class Linear(Module):
         self.output_dim = output_dim
         self.bias = bias
 
-        self.weights = Tensor(output_dim, input_dim).normal_(mean=0, std=0.01)
+        self.weights = Tensor(output_dim, input_dim).normal_(mean=0, std=1 / self.input_dim)
         if self.bias:
-            self.bias = Tensor(output_dim).normal_(mean=0, std=0.01)
+            self.bias = Tensor(output_dim).zero_()
 
         # initialize the tensors to accumulate the gradients during backprop
         # remember to initialize to zero at the beginning of every mini-batch step
@@ -249,7 +249,8 @@ test_loader = DataLoader(test_inputs, test_targets, batch_size)
 
 shape = train_inputs[0].shape
 
-layers = [Linear(input_dim=train_inputs[0].shape[0], output_dim=25), Relu(), Linear(input_dim=25, output_dim=2), Tanh()]
+layers = [Linear(input_dim=train_inputs[0].shape[0], output_dim=25), Relu(), Linear(input_dim=25, output_dim=25),
+          Relu(), Linear(input_dim=25, output_dim=2), Tanh()]
 
 model = Sequential(layers)
 
