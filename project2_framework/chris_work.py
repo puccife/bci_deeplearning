@@ -24,9 +24,9 @@ class Linear(Module):
         self.output_dim = output_dim
         self.bias = bias
 
-        self.weights = Tensor(output_dim, input_dim).normal_(mean=0, std=1e-6)
+        self.weights = Tensor(output_dim, input_dim).normal_(mean=0, std=0.01)
         if self.bias:
-            self.bias = Tensor(output_dim).normal_(mean=0, std=1e-6)
+            self.bias = Tensor(output_dim).normal_(mean=0, std=0.01)
 
         # initialize the tensors to accumulate the gradients during backprop
         # remember to initialize to zero at the beginning of every mini-batch step
@@ -80,7 +80,7 @@ class Linear(Module):
 class Relu(Module):
 
     def forward(self, *input):
-        self.input_non_activated = input
+        self.input_non_activated = input[0]
 
         # TODO: risolvere questione input come liste, assert?
 
@@ -90,7 +90,7 @@ class Relu(Module):
     def backward(self, *gradwrtoutput):
 
         # computing the derivative of the input of the previous layer
-        derivative = self.derivative(self.input_non_activated[0])
+        derivative = self.derivative(self.input_non_activated)
         return derivative * gradwrtoutput[0]
 
 
@@ -157,6 +157,7 @@ def sgd(model, x_batch, y_batch, loss, lr):
     batch_losses = []
     for x, y in zip(x_batch, y_batch):
         predicted = model.forward(x)
+        # print(predicted)
         loss_value = loss.compute(predicted, y)
         batch_losses.append(loss_value)
 
@@ -171,20 +172,6 @@ def sgd(model, x_batch, y_batch, loss, lr):
 
 
 
-
-
-####################data not trusted#################
-
-
-def inCircle(values):
-    radius_squared = 1 / (2 * math.pi)
-    x_squared = math.pow(values[0], 2)
-    y_squared = math.pow(values[1], 2)
-    if ((x_squared + y_squared) <= radius_squared):
-        return 1
-    else:
-        return 0
-
 def generate_data(row_dimension, col_dimension):
     data_input = np.random.uniform(0,1,(row_dimension,col_dimension))
     indices = np.arange(0,row_dimension)
@@ -192,8 +179,21 @@ def generate_data(row_dimension, col_dimension):
     data_output = np.asarray(list(map(lambda index: inCircle(data_input[index]),indices)))
     input_tensor = torch.from_numpy(data_input)
     target_tensor = torch.from_numpy(data_output)
+    new_target = []
+    for e in target_tensor.float():
+        t = [0,0]
+        t[int(e)] = 1
+        new_target.append(t)
+    target_tensor = torch.Tensor(new_target)
     return input_tensor.float(), target_tensor.float()
 
+# check if (x,y) point is inside circle or not
+def inCircle(values):
+    radius = 1 / (math.sqrt(math.pi))
+    area = math.pi * math.pow(radius, 2) / 2
+    x_co = math.pow(values[0] - 0.5, 2)
+    y_co = math.pow(values[1] - 0.5, 2)
+    return 1 if x_co + y_co < (math.pow(radius,2) / 2) else 0
 
 ################################################################
 
@@ -230,6 +230,8 @@ def train(model, epochs, train_loader, test_loader, loss, lr=0.01):
 
 inputs, targets = generate_data(1000, 2)
 
+targets = targets * 0.9 # for tanh range
+
 # TODO: splitting in train test, this is temporary
 train_inputs = inputs[:800]
 train_targets = targets[:800]
@@ -247,12 +249,11 @@ test_loader = DataLoader(test_inputs, test_targets, batch_size)
 
 shape = train_inputs[0].shape
 
-layers = [Linear(input_dim=train_inputs[0].shape[0], output_dim=25), Relu(), Linear(input_dim=25, output_dim=25),
-          Relu(), Linear(input_dim=25, output_dim=25), Relu(), Linear(input_dim=25, output_dim=2), Relu()]
+layers = [Linear(input_dim=train_inputs[0].shape[0], output_dim=25), Relu(), Linear(input_dim=25, output_dim=2), Tanh()]
 
 model = Sequential(layers)
 
-train(model=model, epochs=500, train_loader=train_loader, test_loader=test_loader, loss=LossMSE(), lr=0.0001)
+train(model=model, epochs=500, train_loader=train_loader, test_loader=test_loader, loss=LossMSE(), lr=0.001)
 
 
 
