@@ -9,7 +9,9 @@ from nn.module import Module
 from nn.layers.linear import Linear
 from nn.activations.relu import Relu
 from nn.activations.tanh import Tanh
+from nn.activations.softmax import Softmax
 from nn.losses.mse import LossMSE
+from nn.losses.cross_entropy import CrossEntropy
 from nn.network.sequential import Sequential
 from trainer import train
 
@@ -25,11 +27,11 @@ def main():
 
     layers = [Linear(input_dim=train_inputs[0].shape[0], output_dim=25), Relu(),
               Linear(input_dim=25, output_dim=25), Relu(),
-              Linear(input_dim=25, output_dim=2), Tanh()]
+              Linear(input_dim=25, output_dim=2), Softmax()]
 
     model = Sequential(layers)
 
-    train(model=model, epochs=500, train_loader=train_loader, test_loader=test_loader, loss=LossMSE(), lr=0.01)
+    train(model=model, epochs=500, train_loader=train_loader, test_loader=test_loader, loss=CrossEntropy(), lr=0.01)
 
     return 0
 

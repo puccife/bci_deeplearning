@@ -19,10 +19,15 @@ class Softmax(Module):
         return diag
 
     def _softmax(self, inputs):
-        exps = torch.exp(inputs - (inputs.max(1)[0].view(-1,1)))
-        return exps / torch.sum(exps, 1).view(-1,1)
+        inputs = inputs.view(-1, 1)
+        max_row = inputs.view(-1,1).max(0)[0].view(-1, 1)
+        exps = torch.exp(inputs - max_row)
+        sum_exp = torch.sum(exps, 0).view(-1,1)
+        sm = exps / sum_exp
+        return sm.view(-1)
 
     def derivative(self, inputs):
         sm = self._softmax(inputs)
         s = sm.view(-1, 1)
-        return self._diagflat(s) - torch.mm(s, s.t())
+        der = self._diagflat(s) - torch.mm(s, s.t())
+        return der
