@@ -5,6 +5,8 @@ class Relu(Module):
     def forward(self, *input):
         self.input_non_activated = input[0]
 
+        # TODO: risolvere questione input come liste, assert?
+
         # apply torch clamp(min) to obtain the Relu function
         return input[0].clamp(min=0)
 

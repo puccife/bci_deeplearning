@@ -20,7 +20,6 @@ def generate_data(row_dimension, col_dimension):
 # check if (x,y) point is inside circle or not
 def inCircle(values):
     radius = 1 / (math.sqrt(math.pi))
-    area = math.pi * math.pow(radius, 2) / 2
     x_co = math.pow(values[0] - 0.5, 2)
     y_co = math.pow(values[1] - 0.5, 2)
     return 1 if x_co + y_co < (math.pow(radius,2) / 2) else 0
