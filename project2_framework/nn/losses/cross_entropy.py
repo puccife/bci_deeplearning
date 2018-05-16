@@ -1,5 +1,6 @@
 import torch
 
+
 class CrossEntropy():
 
     def compute(self, predicted, target):
@@ -10,6 +11,5 @@ class CrossEntropy():
         return loss
 
     def derivative(self, predicted, target):
-        der = (predicted.sub(target)).div(predicted*(1-predicted))
-        print("cross entropy")
+        der = (predicted.sub(target)).div(predicted*(1-predicted) + 1e-6)
         return der

@@ -5,7 +5,6 @@ def train(model, epochs, train_loader, test_loader, loss, lr=0.01):
     for epoch in range(epochs):
         epoch_train_losses = []
         for x_batch, y_batch in train_loader.get_loader():
-
             model, batch_loss = sgd(model=model, x_batch=x_batch, y_batch=y_batch, loss=loss, lr=lr)
             epoch_train_losses.append(batch_loss)
             # print('Epoch [%d/%d], batch Loss: %.9f' % (epoch + 1, epochs, batch_loss))

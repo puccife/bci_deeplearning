@@ -15,6 +15,7 @@ from nn.losses.cross_entropy import CrossEntropy
 from nn.network.sequential import Sequential
 from trainer import train
 
+
 def main():
 
     batch_size = 10

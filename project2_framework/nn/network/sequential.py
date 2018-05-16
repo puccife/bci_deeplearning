@@ -1,5 +1,7 @@
 from ..activations.relu import Relu
 from ..activations.tanh import Tanh
+from ..activations.softmax import Softmax
+
 
 class Sequential:
 
@@ -22,5 +24,5 @@ class Sequential:
 
     def update_weights(self, lr):
         for module in self.modules:
-            if not isinstance(module, Relu) and not isinstance(module, Tanh):
+            if not isinstance(module, Relu) and not isinstance(module, Tanh) and not isinstance(module, Softmax):
                 module.update_weights(lr)

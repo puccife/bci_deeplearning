@@ -1,6 +1,7 @@
 from ..module import Module
 import torch
 
+
 class Softmax(Module):
 
     def forward(self, *input):
@@ -27,7 +28,11 @@ class Softmax(Module):
         return sm.view(-1)
 
     def derivative(self, inputs):
+        '''
         sm = self._softmax(inputs)
         s = sm.view(-1, 1)
         der = self._diagflat(s) - torch.mm(s, s.t())
         return der
+        '''
+        sm = self._softmax(inputs)
+        return sm.mul(1 - sm)
