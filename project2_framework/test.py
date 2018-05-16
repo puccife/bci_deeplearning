@@ -27,7 +27,7 @@ def main():
     # defining our layers
     layers = [Linear(input_dim=train_inputs[0].shape[0], output_dim=25), Relu(),
               Linear(input_dim=25, output_dim=25), Relu(),
-              Linear(input_dim=25, output_dim=2), Softmax()]
+              Linear(input_dim=25, output_dim=2), Tanh()]
 
     # creating our model
     model = Sequential(layers)
@@ -39,7 +39,7 @@ def main():
     trainer = Trainer(model=model,
                       optimizer=optimizer,
                       epochs=500,
-                      loss=CrossEntropy(),
+                      loss=LossMSE(),
                       train_loader=train_loader,
                       test_loader=test_loader)
 
