@@ -1,12 +1,11 @@
 import argparse
-
+import torch
 import torch.utils.data as dt
 import utils.dlc_bci as bci
 import utils.hyperparams as hyperparams
 from preprocessing.preprocessing import Preprocess
 from model.trainer import NetTrainer
 
-import torch
 
 # asserting pytorch version == 0.4.0
 try:
@@ -28,13 +27,12 @@ def main(epochs, batch_size, weight_decay):
     """
 
     # prettify output
-    print("==================================")
-    print("MODEL\tval_accuracy\tval_loss")
-    print("----------------------------------")
+    print("=================================================================")
+    print("MODEL\ttrain_accuracy\tval_accuracy\ttrain_loss\tval_loss")
+    print("-----------------------------------------------------------------")
 
     # models to be trained
-    models = ['LOG', 'CNN', 'LSTM', 'TS']
-
+    models = ['TS','LOG', 'CNN', 'LSTM']
     # loop over all the models
     for model in models:
 
@@ -52,14 +50,14 @@ def main(epochs, batch_size, weight_decay):
                                     shuffle=True)
 
         # creating the net trainer given the model
-        t = NetTrainer(epochs, batch_size, weight_decay, model, pretrained=model=='TS')
+        t = NetTrainer(epochs, batch_size, weight_decay, model)#, pretrained=model=='TS')
 
         # training model
-        best_accuracy, best_loss = t.train(train_loader, test_loader)
+        best_accuracy, v_loss, best_t_accuracy, t_loss = t.train(train_loader, test_loader)
 
         # printing output
-        print(model + '\t' + str(best_accuracy) + '\t\t' + str(round(best_loss.item(), 3)))
-    print("==================================")
+        print(model + '\t\t' + str(round(best_t_accuracy, 3)) + '\t\t' + str(best_accuracy) + '\t     ' + str(round(t_loss.item(), 3)) + '\t   ' + str(round(v_loss.item(), 3)))
+    print("=================================================================")
     return 0
 
 if __name__ == '__main__':

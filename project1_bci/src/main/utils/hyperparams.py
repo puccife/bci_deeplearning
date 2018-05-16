@@ -1,3 +1,5 @@
+import torch
+torch.manual_seed(30) # 55 not bad
 import json
 
 """

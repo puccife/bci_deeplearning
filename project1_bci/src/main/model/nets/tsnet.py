@@ -47,7 +47,7 @@ class TSnet(nn.Module):
 
         # Xavier initialization for Convolutional Layers
         if type(m) == nn.Conv2d:
-            torch.nn.init.xavier_normal(m.weight)
+            torch.nn.init.xavier_normal_(m.weight)
 
 
     """
