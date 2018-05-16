@@ -8,8 +8,8 @@ from nn.losses.mse import LossMSE
 from nn.losses.cross_entropy import CrossEntropy
 from nn.network.sequential import Sequential
 
-from project2_framework.nn.optimizers.SGD import SGD
-from project2_framework.trainer import Trainer
+from nn.optimizers.SGD import SGD
+from trainer import Trainer
 
 
 def main():
@@ -27,19 +27,19 @@ def main():
     # defining our layers
     layers = [Linear(input_dim=train_inputs[0].shape[0], output_dim=25), Relu(),
               Linear(input_dim=25, output_dim=25), Relu(),
-              Linear(input_dim=25, output_dim=2), Tanh()]
+              Linear(input_dim=25, output_dim=2), Softmax()]
 
     # creating our model
     model = Sequential(layers)
 
     # init our optimizer
-    optimizer = SGD(model.get_params(), lr=0.001)
+    optimizer = SGD(model.get_params(), lr=0.01)
 
     # init our trainer
     trainer = Trainer(model=model,
                       optimizer=optimizer,
                       epochs=500,
-                      loss=LossMSE(),
+                      loss=CrossEntropy(),
                       train_loader=train_loader,
                       test_loader=test_loader)
 

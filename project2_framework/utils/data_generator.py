@@ -1,14 +1,10 @@
-import numpy as np
 import torch
 import math
 
 def generate_data(row_dimension, col_dimension):
-    data_input = np.random.uniform(0,1,(row_dimension,col_dimension))
-    indices = np.arange(0,row_dimension)
-    # apply a function on indices if input belongs to circle assign 1 otherwise assign 0
-    data_output = np.asarray(list(map(lambda index: inCircle(data_input[index]),indices)))
-    input_tensor = torch.from_numpy(data_input)
-    target_tensor = torch.from_numpy(data_output)
+    input_tensor = torch.Tensor(row_dimension,col_dimension).uniform_(0,1)
+    target_tensor = torch.arange(0,row_dimension)
+    target_tensor.apply_(lambda index: 1 if inCircle(input_tensor[int(index)]) else 0)
     new_target = []
     for e in target_tensor.float():
         t = [0,0]
