@@ -88,7 +88,9 @@ class NetTrainer:
 
         # variables used to store the performances of the models
         best_accuracy = 0
-        best_loss = 333
+        best_t_accuracy = 0
+        v_loss = 333
+        t_loss = 333
 
         # Training process
         for epoch in range(self.num_epochs):
@@ -120,15 +122,15 @@ class NetTrainer:
                     running_loss += loss
 
             # Eval training
-            self.__evaluate("\t\t- Train", self.net, train_loader, epoch)
+            best_t_accuracy, t_loss = self.__evaluate("\t\t- Train", self.net, train_loader, epoch, testing=False, best_accuracy=best_t_accuracy, best_loss=t_loss)
             # Eval testing
-            best_accuracy, best_loss = self.__evaluate("\t\t- Test", self.net, test_loader, epoch, testing=True, best_accuracy=best_accuracy, best_loss=best_loss)
+            best_accuracy, v_loss = self.__evaluate("\t\t- Test", self.net, test_loader, epoch, testing=True, best_accuracy=best_accuracy, best_loss=v_loss)
             if self.pretrained:
                 break
         # Used to build the graph of the network
         #self.graph_output = outputs
         #self.params = dict(self.net.named_parameters())
-        return best_accuracy, best_loss
+        return best_accuracy, v_loss, best_t_accuracy, t_loss
 
     def __evaluate(self, label, net, loader, epoch, testing=False, best_accuracy=0, best_loss=333):
         """
@@ -174,12 +176,9 @@ class NetTrainer:
         accuracy = accuracy_score(correct_targets, predictions)
         #self.writer.add_scalar(label + '/accuracy', (accuracy * 100), epoch)
         #print(label, ' accuracy of the model : ', accuracy)
-        # Returning best accuracy and loss
-        # Save the Trained Model if better
-        if testing:
-            if avgloss <= best_loss:
-                best_loss = avgloss
-            if best_accuracy <= accuracy:
-                best_accuracy = accuracy
+        # saving model if accuracy of testing is better
+        if best_accuracy <= accuracy:
+            best_accuracy = accuracy
+            if testing:
                 torch.save(net.state_dict(), '../../model/'+self.model+'.pkl')
-            return best_accuracy, best_loss
+        return best_accuracy, avgloss
