@@ -26,3 +26,10 @@ class Sequential:
         for module in self.modules:
             if not isinstance(module, Relu) and not isinstance(module, Tanh) and not isinstance(module, Softmax):
                 module.update_weights(lr)
+
+    def get_params(self):
+        model_params = []
+        for module in self.modules:
+            model_params.append(module.param())
+
+        return model_params

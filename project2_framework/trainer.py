@@ -1,14 +1,33 @@
-from nn.optimizers.SGD import sgd
+from nn.optimizers.SGD import SGD
 
-def train(model, epochs, train_loader, test_loader, loss, lr=0.01):
+
+def batch_step(model, x_batch, y_batch, loss):
+    batch_losses = []
+    for x, y in zip(x_batch, y_batch):
+        predicted = model.forward(x)
+        # print(predicted)
+        loss_value = loss.compute(predicted, y)
+        batch_losses.append(loss_value)
+
+        derivative_loss = loss.derivative(predicted, y)
+        model.backward(derivative_loss)
+
+    # return the updated model and the average loss of the batch
+    return sum(batch_losses) / len(batch_losses)
+
+
+def train(model, epochs, train_loader, test_loader, loss, optimizer):
 
     for epoch in range(epochs):
         epoch_train_losses = []
         for x_batch, y_batch in train_loader.get_loader():
-            model, batch_loss = sgd(model=model, x_batch=x_batch, y_batch=y_batch, loss=loss, lr=lr)
+            batch_loss = batch_step(model=model, x_batch=x_batch, y_batch=y_batch, loss=loss)
             epoch_train_losses.append(batch_loss)
-            # print('Epoch [%d/%d], batch Loss: %.9f' % (epoch + 1, epochs, batch_loss))
 
+            # updating the model parameters
+            optimizer.step()
+
+        # compute the average epoch train loss
         epoch_train_loss = sum(epoch_train_losses) / len(epoch_train_losses)
 
         # validation
@@ -29,6 +48,8 @@ def train(model, epochs, train_loader, test_loader, loss, lr=0.01):
         print("Accuracy: ", correct/total)
         print('Epoch [%d/%d], train Loss: %.6f, val loss: %.6f'% (epoch + 1, epochs,
                  epoch_train_loss, epoch_val_loss))
+
+
 
 
 

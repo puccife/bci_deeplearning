@@ -15,6 +15,8 @@ from nn.losses.cross_entropy import CrossEntropy
 from nn.network.sequential import Sequential
 from trainer import train
 
+from project2_framework.nn.optimizers.SGD import SGD
+
 
 def main():
 
@@ -31,8 +33,9 @@ def main():
               Linear(input_dim=25, output_dim=2), Softmax()]
 
     model = Sequential(layers)
+    optimizer = SGD(model.get_params(), lr=0.01)
 
-    train(model=model, epochs=500, train_loader=train_loader, test_loader=test_loader, loss=CrossEntropy(), lr=0.01)
+    train(model=model, epochs=500, train_loader=train_loader, test_loader=test_loader, loss=CrossEntropy(), optimizer=optimizer)
 
     return 0
 

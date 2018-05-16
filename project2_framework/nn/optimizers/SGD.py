@@ -1,16 +1,13 @@
-def sgd(model, x_batch, y_batch, loss, lr):
-    batch_losses = []
-    for x, y in zip(x_batch, y_batch):
-        predicted = model.forward(x)
-        # print(predicted)
-        loss_value = loss.compute(predicted, y)
-        batch_losses.append(loss_value)
+class SGD:
 
-        derivative_loss = loss.derivative(predicted, y)
-        model.backward(derivative_loss)
+    def __init__(self, model_params, lr=0.01):
+        self.model_params = model_params
+        self.lr = lr
 
-    # TODO: temporaneo sgd update fatto cosi
-    model.update_weights(lr)
-
-    # return the updated model and the average loss of the batch
-    return model, sum(batch_losses) / len(batch_losses)
+    def step(self):
+        for layers_params in self.model_params:
+            for param_update in layers_params:
+                param = param_update[0]
+                update = param_update[1]
+                param -= self.lr * update
+                update.zero_()

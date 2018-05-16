@@ -14,3 +14,4 @@ class Tanh(Module):
 
     def derivative(self, inputs):
         return 4 * (inputs.exp() + inputs.mul(-1).exp()).pow(-2)
+
