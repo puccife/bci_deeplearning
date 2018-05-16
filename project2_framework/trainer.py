@@ -1,54 +1,59 @@
-from nn.optimizers.SGD import SGD
 
+class Trainer:
 
-def batch_step(model, x_batch, y_batch, loss):
-    batch_losses = []
-    for x, y in zip(x_batch, y_batch):
-        predicted = model.forward(x)
-        # print(predicted)
-        loss_value = loss.compute(predicted, y)
-        batch_losses.append(loss_value)
+    def __init__(self, model, optimizer, loss, epochs, train_loader, test_loader):
+        self.model = model
+        self.optimizer = optimizer
+        self.loss = loss
+        self.epochs = epochs
+        self.train_loader = train_loader
+        self.test_loader = test_loader
 
-        derivative_loss = loss.derivative(predicted, y)
-        model.backward(derivative_loss)
+    def train(self):
 
-    # return the updated model and the average loss of the batch
-    return sum(batch_losses) / len(batch_losses)
+        # writer = SummaryWriter()
+        for epoch in range(self.epochs):
 
+            # computing training loss, accuracy and the backward pass
+            t_loss, t_accuracy = self.compute_loss_and_accuracy()
 
-def train(model, epochs, train_loader, test_loader, loss, optimizer):
-# from tensorboardX import SummaryWriter
+            # computing validation loss, accuracy and skipping backward pass
+            v_loss, v_accuracy = self.compute_loss_and_accuracy(is_training=False)
 
-def train(model, epochs, train_loader, test_loader, loss, lr=0.01):
+            print('Epoch [ %d / %d ], train loss: %.6f, val loss: %.6f, train acc: %.6f, val acc: %.6f'% (epoch + 1,
+                                                                                                          self.epochs,
+                                                                                                          t_loss,
+                                                                                                          v_loss,
+                                                                                                          t_accuracy,
+                                                                                                          v_accuracy))
 
-    # writer = SummaryWriter()
-    for epoch in range(epochs):
-        for k, (x_batch, y_batch) in enumerate(train_loader.get_loader()):
-            model, batch_loss = sgd(model=model, x_batch=x_batch, y_batch=y_batch, loss=loss, lr=lr)
+    def compute_loss_and_accuracy(self, is_training=True):
 
-        t_loss, t_accuracy = validate('train', train_loader, model, epoch, loss)#, writer)
-        v_loss, v_accuracy = validate('validation', test_loader, model, epoch, loss)#, writer)
+        epoch_val_losses = []
+        total = 0
+        correct = 0
 
-        print("Epoch [",epoch,"/",epochs,"], train acc: ", t_accuracy, ", val acc: ", v_accuracy)
-        print('Epoch [ %d / %d ], train loss: %.6f, val loss: %.6f'% (epoch + 1, epochs,
-                 t_loss, v_loss))
+        loader = self.train_loader if is_training else self.test_loader
 
+        for j, (x_batch, y_batch) in enumerate(loader.get_loader()):
+            batch_loss = 0
+            for x, y in zip(x_batch, y_batch):
+                predicted = self.model.forward(x)
+                total += 1
+                if predicted.max(0)[1][0] == y.max(0)[1][0]:
+                    correct += 1
+                loss_value = self.loss.compute(predicted, y)
+                batch_loss += loss_value
+                epoch_val_losses.append(loss_value)
 
-def validate(label, loader, model, epoch, loss):#, writer):
-    epoch_val_losses = []
-    total = 0
-    correct = 0
-    for j, (x_batch, y_batch) in enumerate(loader.get_loader()):
-        batch_loss = 0
-        for x, y in zip(x_batch, y_batch):
-            predicted = model.forward(x)
-            total += 1
-            if predicted.max(0)[1][0] == y.max(0)[1][0]:
-                correct += 1
-            loss_value = loss.compute(predicted, y)
-            batch_loss += loss_value
-            epoch_val_losses.append(loss_value)
-        # writer.add_scalars('loss', {label: batch_loss}, epoch * 1000 + 10 * j)
-        # writer.add_scalars('accuracy', {label: correct/total}, epoch * 1000 + 10 * j)
-    epoch_val_loss = sum(epoch_val_losses) / len(epoch_val_losses)
-    return epoch_val_loss, correct/total
+                # computing the backward pass for the training part
+                if is_training:
+                    derivative_loss = self.loss.derivative(predicted, y)
+                    self.model.backward(derivative_loss)
+
+            # updating the model weights during training
+            if is_training:
+                self.optimizer.step()
+
+        epoch_val_loss = sum(epoch_val_losses) / len(epoch_val_losses)
+        return epoch_val_loss, correct/total
