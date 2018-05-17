@@ -1,5 +1,6 @@
 from utils.loader import DataLoader
 from utils.data_generator import generate_data
+from utils.trainer import Trainer
 from nn.layers.linear import Linear
 from nn.activations.relu import Relu
 from nn.activations.tanh import Tanh
@@ -9,7 +10,6 @@ from nn.losses.cross_entropy import CrossEntropy
 from nn.network.sequential import Sequential
 
 from nn.optimizers.SGD import SGD
-from trainer import Trainer
 
 
 def main():

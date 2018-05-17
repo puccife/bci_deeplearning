@@ -1,7 +1,11 @@
 from ..module import Module
 from torch import Tensor
 
+
 class Linear(Module):
+    """
+    Linear layer implementation
+    """
 
     def __init__(self, input_dim, output_dim, bias=True):
 
@@ -9,6 +13,7 @@ class Linear(Module):
         self.output_dim = output_dim
         self.bias = bias
 
+        # init layer weights using xavier initialization
         self.weights = Tensor(output_dim, input_dim).normal_(mean=0, std=1 / self.input_dim)
         if self.bias:
             self.bias = Tensor(output_dim).zero_()
@@ -34,8 +39,6 @@ class Linear(Module):
         # for a linear layer l, the gradwrtoutput will be the grad output
         # from the activation module, that is the product of dsigma(s_{l})
         # and the grad wrt the output of the activation function
-        #
-        #  #
         grad_wrt_s_l = gradwrtoutput[0]
 
         # compute the grad wrt the input of previous layer (x_{l-1})
@@ -51,12 +54,9 @@ class Linear(Module):
         return grad_wrt_input_prev_layer
 
     def param(self):
+        """
+        returns pair of tensors: first is a parameter tensor,
+        the second is the gradient accumulator for this parameter tensor
+        :return:
+        """
         return [(self.weights, self.dl_dw), (self.bias, self.dl_db)]
-
-    def update_weights(self, lr):
-        self.weights -= lr*self.dl_dw
-        self.bias -= lr * self.dl_db
-
-        #reset accumulators
-        self.dl_dw.zero_()
-        self.dl_db.zero_()

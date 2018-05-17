@@ -1,4 +1,8 @@
 class LossMSE:
+    """
+    Mean Square Error Loss implementation
+    """
+
     def compute(self, predicted, target):
         return (predicted - target).pow(2).sum()
 

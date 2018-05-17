@@ -1,11 +1,14 @@
 from ..module import Module
 
+
 class Relu(Module):
+    """
+    implementation of the Relu layer with forward,
+    backward and derivative functions
+    """
 
     def forward(self, *input):
         self.input_non_activated = input[0]
-
-        # TODO: risolvere questione input come liste, assert?
 
         # apply torch clamp(min) to obtain the Relu function
         return input[0].clamp(min=0)

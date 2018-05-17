@@ -2,9 +2,16 @@ from ..module import Module
 import torch
 
 class Tanh(Module):
+    """
+    Tanh activation implementation
+    """
 
     def forward(self, *input):
+
+        # saving input from previous layer used for backprop
         self.input_non_activated = input[0]
+
+        # computing the tanh value
         return (2. / (1. + torch.exp(-2 * self.input_non_activated))) - 1
 
 
