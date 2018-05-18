@@ -10,7 +10,7 @@ First of all, make sure you have installed:
 
 1. python 3.5 or higher
 
-2. pytorch 4.0.0
+2. pytorch 0.4.0
 
 ### Description of directories
 1. In the "nn" directory you can find subdirectories containing the activations funtions implementations, the layers implementations, the Sequential class, the losses and the optimizer.

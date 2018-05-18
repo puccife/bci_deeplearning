@@ -1,11 +1,7 @@
 from .filtering import *
 import torch
-"""
-This class is used to preprocess the data.
-@authors:
-    - Federico Pucci
-    - Christian Sciuto
-"""
+
+
 class Preprocess:
 
     def __init__(self):
